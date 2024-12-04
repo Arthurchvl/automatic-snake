@@ -61,6 +61,8 @@ void enable_echo();
 
 
 int main(){
+	time_t debut = time(NULL);
+
 	// 2 tableaux contenant les positions des éléments qui constituent le serpent
     int lesX[TAILLE];
 	int lesY[TAILLE];
@@ -131,9 +133,11 @@ int main(){
     enable_echo();
 	gotoxy(1, HAUTEUR_PLATEAU+1);
 	if (gagne){
+		time_t fin = time(NULL);
 		enable_echo();
 		gotoxy(1, HAUTEUR_PLATEAU+1);
-		printf("Votre serpent s'est déplacé %d fois", nbDepUnitaires);
+		printf("Votre serpent s'est déplacé %d fois\n", nbDepUnitaires);
+		printf("La partie a durée %.0f seconde \n", difftime(fin, debut));
 	}
 	return EXIT_SUCCESS;
 }
