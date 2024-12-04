@@ -1,3 +1,14 @@
+/**
+ * @file snake_game.c
+ * @brief Jeu du serpent en C
+ * @author Chauvel Arthur, Le Chevère Yannis
+ * @version 1.0
+ * @date 04/12/2024
+ *
+ * Implémentation du jeu du serpent respectant les conventions de codage.
+ */
+
+/* Fichiers inclus */
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -46,7 +57,7 @@ typedef char tPlateau[LARGEUR_PLATEAU+1][HAUTEUR_PLATEAU+1];
 int nbPommes = 0;
 int nbDepUnitaires = 0;
 
-
+/* Déclaration des fonctions et procédures (les prototypes) */
 void initPlateau(tPlateau plateau);
 void dessinerPlateau(tPlateau plateau);
 void ajouterPomme(tPlateau plateau);
@@ -60,7 +71,8 @@ void disable_echo();
 void enable_echo();
 
 
-int main(){
+int main()
+{
 	time_t debut = time(NULL);
 
 	// 2 tableaux contenant les positions des éléments qui constituent le serpent
@@ -82,7 +94,8 @@ int main(){
    
 	// initialisation de la position du serpent : positionnement de la
 	// tête en (X_INITIAL, Y_INITIAL), puis des anneaux à sa gauche
-	for(int i=0 ; i<TAILLE ; i++){
+	for(int i=0 ; i<TAILLE ; i++)
+	{
 		lesX[i] = X_INITIAL-i;
 		lesY[i] = Y_INITIAL;
 	}
@@ -105,34 +118,49 @@ int main(){
 	// boucle de jeu. Arret si touche STOP, si collision avec une bordure ou
 	// si toutes les pommes sont mangées
 	do {
-		switch (touche){
-			case GAUCHE : direction = GAUCHE; break;
-			case HAUT 	: direction = HAUT;	break;
-			case BAS 	: direction = BAS;	break;
-			case DROITE : direction = DROITE; break;
+		switch (touche)
+		{
+			case GAUCHE :
+				direction = GAUCHE;
+				break;
+			case HAUT 	:
+				direction = HAUT;
+				break;
+			case BAS 	:
+				direction = BAS;
+				break;
+			case DROITE :
+				direction = DROITE;
+				break;
 		}
 		progresser(lesX, lesY, direction, lePlateau, &collision, &pommeMangee);
-		if (pommeMangee){
+		if (pommeMangee)
+		{
             nbPommes++;
 			gagne = (nbPommes==NB_POMMES);
-			if (!gagne){
+			if (!gagne)
+			{
 				ajouterPomme(lePlateau);
 				pommeMangee = false;
 			}	
 			
 		}
-		if (!gagne){
-			if (!collision){
+		if (!gagne)
+		{
+			if (!collision)
+			{
 				usleep(ATTENTE);
-				if (kbhit()==1){
+				if (kbhit()==1)
+				{
 					touche = getchar();
 				}
 			}
 		}
-	} while (touche != STOP && !collision && !gagne);
+	} while ( (touche != STOP) && !collision && !gagne);
     enable_echo();
 	gotoxy(1, HAUTEUR_PLATEAU+1);
-	if (gagne){
+	if (gagne)
+	{
 		time_t fin = time(NULL);
 		enable_echo();
 		gotoxy(1, HAUTEUR_PLATEAU+1);
@@ -146,25 +174,29 @@ int main(){
 /************************************************/
 /*		FONCTIONS ET PROCEDURES DU JEU 			*/
 /************************************************/
-void initPlateau(tPlateau plateau){
+void initPlateau(tPlateau plateau)
+{
+	int i, j;
 	// initialisation du plateau avec des espaces
-	for (int i=1 ; i<=LARGEUR_PLATEAU ; i++){
-		for (int j=1 ; j<=HAUTEUR_PLATEAU ; j++){
+	for (i = 1 ; i <= LARGEUR_PLATEAU ; i++)
+	{
+		for (int j=1 ; j <= HAUTEUR_PLATEAU ; j++)
+		{
 			plateau[i][j] = VIDE;
 		}
 	}
 	// Mise en place la bordure autour du plateau
 	// première ligne
-	for (int i=1 ; i<=LARGEUR_PLATEAU ; i++){
+	for (i = 1 ; i<=LARGEUR_PLATEAU ; i++){
 		plateau[i][1] = BORDURE;
 	}
 	// lignes intermédiaires
-	for (int j=1 ; j<=HAUTEUR_PLATEAU ; j++){
+	for (j = 1; j<=HAUTEUR_PLATEAU ; j++){
 			plateau[1][j] = BORDURE;
 			plateau[LARGEUR_PLATEAU][j] = BORDURE;
 		}
 	// dernière ligne
-	for (int i=1 ; i<=LARGEUR_PLATEAU ; i++){
+	for (i = 1; i<=LARGEUR_PLATEAU ; i++){
 		plateau[i][HAUTEUR_PLATEAU] = BORDURE;
 	}
 }
