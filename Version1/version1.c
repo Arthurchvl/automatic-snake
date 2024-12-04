@@ -16,7 +16,7 @@
 #define X_INITIAL 40
 #define Y_INITIAL 20
 // nombre de pommes à manger pour gagner
-#define NB_POMMES 4
+#define NB_POMMES 10
 // temporisation entre deux déplacements du serpent (en microsecondes)
 #define ATTENTE 200000
 // caractères pour représenter le serpent
@@ -39,7 +39,12 @@
 // avec les coordonées à l'écran (qui commencent à 1), on ajoute 1 aux dimensions
 // et on neutralise la ligne 0 et la colonne 0 du tableau 2D (elles ne sont jamais
 // utilisées)
+int lesPommesX[NB_POMMES] = {75, 75, 78, 2, 8, 78, 74,  2, 72, 5};
+int lesPommesY[NB_POMMES] = { 8, 39,  2, 2, 5, 39, 33, 38, 35, 2};
 typedef char tPlateau[LARGEUR_PLATEAU+1][HAUTEUR_PLATEAU+1];
+// compteur de pommes mangées
+int nbPommes = 0;
+int nbDepUnitaires = 0;
 
 
 void initPlateau(tPlateau plateau);
@@ -72,9 +77,6 @@ int main(){
 	bool collision=false;
 	bool gagne = false;
 	bool pommeMangee = false;
-
-	// compteur de pommes mangées
-	int nbPommes = 0;
    
 	// initialisation de la position du serpent : positionnement de la
 	// tête en (X_INITIAL, Y_INITIAL), puis des anneaux à sa gauche
@@ -102,10 +104,10 @@ int main(){
 	// si toutes les pommes sont mangées
 	do {
 		switch (touche){
-			case GAUCHE : direction=GAUCHE; break;
-			case HAUT 	: direction=HAUT;	break;
-			case BAS 	: direction=BAS;	break;
-			case DROITE : direction=DROITE; break;
+			case GAUCHE : direction = GAUCHE; break;
+			case HAUT 	: direction = HAUT;	break;
+			case BAS 	: direction = BAS;	break;
+			case DROITE : direction = DROITE; break;
 		}
 		progresser(lesX, lesY, direction, lePlateau, &collision, &pommeMangee);
 		if (pommeMangee){
@@ -128,6 +130,11 @@ int main(){
 	} while (touche != STOP && !collision && !gagne);
     enable_echo();
 	gotoxy(1, HAUTEUR_PLATEAU+1);
+	if (gagne){
+		enable_echo();
+		gotoxy(1, HAUTEUR_PLATEAU+1);
+		printf("Votre serpent s'est déplacé %d fois", nbDepUnitaires);
+	}
 	return EXIT_SUCCESS;
 }
 
@@ -171,13 +178,8 @@ void ajouterPomme(tPlateau plateau){
 	// génère aléatoirement la position d'une pomme,
 	// vérifie que ça correspond à une case vide
 	// du plateau puis l'ajoute au plateau et l'affiche
-	int xPomme, yPomme;
-	do{
-		xPomme = (rand()%LARGEUR_PLATEAU) + 1;
-		yPomme = (rand()%HAUTEUR_PLATEAU) + 1;
-	} while (plateau[xPomme][yPomme]!=' ');
-	plateau[xPomme][yPomme]=POMME;
-	afficher(xPomme, yPomme, POMME);
+	plateau[lesPommesX[nbPommes]][lesPommesY[nbPommes]]=POMME;
+	afficher(lesPommesX[nbPommes], lesPommesY[nbPommes], POMME);
 }
 
 void afficher(int x, int y, char car){
@@ -237,6 +239,7 @@ void progresser(int lesX[], int lesY[], char direction, tPlateau plateau, bool *
 		*collision = true;
 	}
    	dessinerSerpent(lesX, lesY);
+	nbDepUnitaires++;
 }
 
 

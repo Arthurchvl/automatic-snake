@@ -1,0 +1,13 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "C/C++ Runner: Debug Session",
+      "type": "lldb",
+      "request": "launch",
+      "args": [],
+      "cwd": "/Users/romanehammami/Documents/Yannis/BUT_1E2/Semestre-1/SAÉ-1.02/SAE102/Version1",
+      "program": "/Users/romanehammami/Documents/Yannis/BUT_1E2/Semestre-1/SAÉ-1.02/SAE102/Version1/build/Debug/outDebug"
+    }
+  ]
+}
