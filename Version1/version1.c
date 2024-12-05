@@ -43,6 +43,8 @@
 #define BORDURE '#'
 #define VIDE ' '
 #define POMME '6'
+// nombre servant a la convertion du temps en seconde
+#define CONVERTION_SECONDE 1000
 
 
 // définition d'un type pour le plateau : tPlateau
@@ -73,7 +75,7 @@ void enable_echo();
 
 int main()
 {
-	time_t debut = time(NULL);
+	time_t debut = clock();
 
 	// 2 tableaux contenant les positions des éléments qui constituent le serpent
     int lesX[TAILLE];
@@ -88,7 +90,7 @@ int main()
 	// le plateau de jeu
 	tPlateau lePlateau;
 
-	bool collision=false;
+	bool collision = false;
 	bool gagne = false;
 	bool pommeMangee = false;
    
@@ -161,11 +163,11 @@ int main()
 	gotoxy(1, HAUTEUR_PLATEAU+1);
 	if (gagne)
 	{
-		time_t fin = time(NULL);
+		clock_t fin = clock();
 		enable_echo();
 		gotoxy(1, HAUTEUR_PLATEAU+1);
 		printf("Votre serpent s'est déplacé %d fois\n", nbDepUnitaires);
-		printf("La partie a durée %.0f seconde \n", difftime(fin, debut));
+		printf("La partie a durée %.2f seconde \n", (difftime(fin, debut) / CONVERTION_SECONDE) );
 	}
 	return EXIT_SUCCESS;
 }
@@ -187,91 +189,109 @@ void initPlateau(tPlateau plateau)
 	}
 	// Mise en place la bordure autour du plateau
 	// première ligne
-	for (i = 1 ; i<=LARGEUR_PLATEAU ; i++){
+	for (i = 1 ; i <= LARGEUR_PLATEAU ; i++)
+	{
 		plateau[i][1] = BORDURE;
 	}
 	// lignes intermédiaires
-	for (j = 1; j<=HAUTEUR_PLATEAU ; j++){
+	for (j = 1 ; j <= HAUTEUR_PLATEAU ; j++)
+	{
 			plateau[1][j] = BORDURE;
 			plateau[LARGEUR_PLATEAU][j] = BORDURE;
 		}
 	// dernière ligne
-	for (i = 1; i<=LARGEUR_PLATEAU ; i++){
+	for (i = 1; i <= LARGEUR_PLATEAU ; i++)
+	{
 		plateau[i][HAUTEUR_PLATEAU] = BORDURE;
 	}
 }
 
-void dessinerPlateau(tPlateau plateau){
+void dessinerPlateau(tPlateau plateau)
+{
+	int i, j;
 	// affiche eà l'écran le contenu du tableau 2D représentant le plateau
-	for (int i=1 ; i<=LARGEUR_PLATEAU ; i++){
-		for (int j=1 ; j<=HAUTEUR_PLATEAU ; j++){
+	for (i = 1 ; i <= LARGEUR_PLATEAU ; i++){
+		for (j = 1 ; j <= HAUTEUR_PLATEAU ; j++)
+		{
 			afficher(i, j, plateau[i][j]);
 		}
 	}
 }
 
-void ajouterPomme(tPlateau plateau){
+void ajouterPomme(tPlateau plateau)
+{
 	// génère aléatoirement la position d'une pomme,
 	// vérifie que ça correspond à une case vide
 	// du plateau puis l'ajoute au plateau et l'affiche
-	plateau[lesPommesX[nbPommes]][lesPommesY[nbPommes]]=POMME;
+	plateau[lesPommesX[nbPommes]][lesPommesY[nbPommes]] = POMME;
 	afficher(lesPommesX[nbPommes], lesPommesY[nbPommes], POMME);
 }
 
-void afficher(int x, int y, char car){
+void afficher(int x, int y, char car)
+{
 	gotoxy(x, y);
 	printf("%c", car);
 	gotoxy(1,1);
 }
 
-void effacer(int x, int y){
+void effacer(int x, int y)
+{
 	gotoxy(x, y);
 	printf(" ");
 	gotoxy(1,1);
 }
 
-void dessinerSerpent(int lesX[], int lesY[]){
+void dessinerSerpent(int lesX[], int lesY[])
+{
+	int i;
 	// affiche les anneaux puis la tête
-	for(int i=1 ; i<TAILLE ; i++){
+	for(i = 1 ; i < TAILLE ; i++)
+	{
 		afficher(lesX[i], lesY[i], CORPS);
 	}
 	afficher(lesX[0], lesY[0],TETE);
 }
 
-void progresser(int lesX[], int lesY[], char direction, tPlateau plateau, bool * collision, bool * pomme){
+void progresser(int lesX[], int lesY[], char direction, tPlateau plateau, bool * collision, bool * pomme)
+{
+	int i;
 	// efface le dernier élément avant d'actualiser la position de tous les 
 	// élémentds du serpent avant de le  redessiner et détecte une
 	// collision avec une pomme ou avec une bordure
 	effacer(lesX[TAILLE-1], lesY[TAILLE-1]);
 
-	for(int i=TAILLE-1 ; i>0 ; i--){
+	for(i = TAILLE - 1 ; i > 0 ; i--)
+	{
 		lesX[i] = lesX[i-1];
 		lesY[i] = lesY[i-1];
 	}
 	//faire progresser la tete dans la nouvelle direction
-	switch(direction){
-		case HAUT : 
+	switch(direction)
+	{
+		case HAUT	: 
 			lesY[0] = lesY[0] - 1;
 			break;
-		case BAS:
+		case BAS	:
 			lesY[0] = lesY[0] + 1;
 			break;
-		case DROITE:
+		case DROITE	:
 			lesX[0] = lesX[0] + 1;
 			break;
-		case GAUCHE:
+		case GAUCHE	:
 			lesX[0] = lesX[0] - 1;
 			break;
 	}
 	*pomme = false;
 	// détection d'une "collision" avec une pomme
-	if (plateau[lesX[0]][lesY[0]] == POMME){
+	if (plateau[lesX[0]][lesY[0]] == POMME)
+	{
 		*pomme = true;
 		// la pomme disparait du plateau
 		plateau[lesX[0]][lesY[0]] = VIDE;
 	}
 	// détection d'une collision avec la bordure
-	else if (plateau[lesX[0]][lesY[0]] == BORDURE){
+	else if (plateau[lesX[0]][lesY[0]] == BORDURE)
+	{
 		*collision = true;
 	}
    	dessinerSerpent(lesX, lesY);
@@ -283,15 +303,17 @@ void progresser(int lesX[], int lesY[], char direction, tPlateau plateau, bool *
 /************************************************/
 /*				 FONCTIONS UTILITAIRES 			*/
 /************************************************/
-void gotoxy(int x, int y) { 
+void gotoxy(int x, int y)
+{ 
     printf("\033[%d;%df", y, x);
 }
 
-int kbhit(){
+int kbhit()
+{
 	// la fonction retourne :
 	// 1 si un caractere est present
 	// 0 si pas de caractere présent
-	int unCaractere=0;
+	int unCaractere = 0;
 	struct termios oldt, newt;
 	int ch;
 	int oldf;
@@ -310,19 +332,22 @@ int kbhit(){
 	tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
 	fcntl(STDIN_FILENO, F_SETFL, oldf);
  
-	if(ch != EOF){
+	if(ch != EOF)
+	{
 		ungetc(ch, stdin);
-		unCaractere=1;
+		unCaractere = 1;
 	} 
 	return unCaractere;
 }
 
 // Fonction pour désactiver l'echo
-void disable_echo() {
+void disable_echo()
+{
     struct termios tty;
 
     // Obtenir les attributs du terminal
-    if (tcgetattr(STDIN_FILENO, &tty) == -1) {
+    if (tcgetattr(STDIN_FILENO, &tty) == -1) 
+	{
         perror("tcgetattr");
         exit(EXIT_FAILURE);
     }
@@ -331,18 +356,21 @@ void disable_echo() {
     tty.c_lflag &= ~ECHO;
 
     // Appliquer les nouvelles configurations
-    if (tcsetattr(STDIN_FILENO, TCSANOW, &tty) == -1) {
+    if (tcsetattr(STDIN_FILENO, TCSANOW, &tty) == -1)
+	{
         perror("tcsetattr");
         exit(EXIT_FAILURE);
     }
 }
 
 // Fonction pour réactiver l'echo
-void enable_echo() {
+void enable_echo()
+{
     struct termios tty;
 
     // Obtenir les attributs du terminal
-    if (tcgetattr(STDIN_FILENO, &tty) == -1) {
+    if (tcgetattr(STDIN_FILENO, &tty) == -1)
+	{
         perror("tcgetattr");
         exit(EXIT_FAILURE);
     }
@@ -351,7 +379,8 @@ void enable_echo() {
     tty.c_lflag |= ECHO;
 
     // Appliquer les nouvelles configurations
-    if (tcsetattr(STDIN_FILENO, TCSANOW, &tty) == -1) {
+    if (tcsetattr(STDIN_FILENO, TCSANOW, &tty) == -1)
+	{
         perror("tcsetattr");
         exit(EXIT_FAILURE);
     }
