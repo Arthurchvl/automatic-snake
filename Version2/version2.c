@@ -1,19 +1,21 @@
 /**
- * @file version1.c
- * @brief Automatisation d'un jeu snake codé en C lors de la SAE 1.01
+ * @file version2.c
+ * @brief automatisation d'un jeu snake créé lors de la SAE 1.01
  * @author Chauvel Arthur, Le Chevère Yannis
- * @version 1.0
- * @date 11/12/2024
+ * @version 2.0
+ * @date 04/12/2024
  *
- * Automatisation d'un jeu snake pour qu'il se déplace automatiquement.
- * Cette version initialise le plateau de jeu avec les dimensions données en constantes,
- * elle initialise le serpent à la position donnée en constante,
- * elle permet également de manger des pommes dont les postitions sont fixes.
- * La touche d'arret du jeu est fonctionnelle et la condition de victoire aussi.
- * Les conditions avec les bordures sont activées
- * mais la colision entre la tête du serpent et son corps n'ont pas de cconséquence.
- * En cas de victoire, le nombre de déplacements unitaire réalisé par le serpent
- * et le temps CPU réalisé par le programme sont affichés.
+ * étape 2 de l'automatisation d'un jeu snake codé en C lors de la SAE 1.01
+ * le jeu initialise le plateau aux dimensions données en constantes,
+ * il initialise le serpent qux coordonées de départ données en paramètres,
+ * les milieux du serpent sont percées pour créer des issues 
+ * que le serpent peut emprunter en cours de partie
+ * pour se téléporter à l'issue de la bordure opposée.
+ * Le jeu utilise une touche d'arrêt si le joueur veut mettre fin à la partie sans perdre.
+ * La collision de la tête du serpent avec une bordure 
+ * ou avec le corps du serpent met fin à la partie.
+ * En cas de victoire, le jeu affiche le nombre de déplacement unitaires du serpent
+ * et le temps CPU du programme.
  */
 
 /* Fichiers inclus */
@@ -35,7 +37,7 @@
 #define X_INITIAL 40
 #define Y_INITIAL 20
 // nombre de pommes à manger pour gagner
-#define NB_POMMES 10
+#define NB_POMMES 1
 // temporisation entre deux déplacements du serpent (en microsecondes)
 #define ATTENTE 200000
 // caractères pour représenter le serpent
@@ -212,12 +214,17 @@ void initPlateau(tPlateau plateau)
 	{
 		plateau[i][HAUTEUR_PLATEAU] = BORDURE;
 	}
+	plateau[LARGEUR_PLATEAU][HAUTEUR_PLATEAU/2] = VIDE;
+	plateau[LARGEUR_PLATEAU/2][HAUTEUR_PLATEAU] = VIDE;
+	plateau[LARGEUR_PLATEAU/2][1] = VIDE;
+	plateau[1][HAUTEUR_PLATEAU/2] = VIDE;
+
 }
 
 void dessinerPlateau(tPlateau plateau)
 {
 	int i, j;
-	// affiche eà l'écran le contenu du tableau 2D représentant le plateau
+	// affiche à l'écran le contenu du tableau 2D représentant le plateau
 	for (i = 1 ; i <= LARGEUR_PLATEAU ; i++){
 		for (j = 1 ; j <= HAUTEUR_PLATEAU ; j++)
 		{
@@ -302,6 +309,19 @@ void progresser(int lesX[], int lesY[], char direction, tPlateau plateau, bool *
 	{
 		*collision = true;
 	}
+
+	if (lesX[0] == 0 && lesY[0] == HAUTEUR_PLATEAU / 2) lesX[0] = LARGEUR_PLATEAU - 2;
+    else if (lesX[0] == LARGEUR_PLATEAU - 1 && lesY[0] == HAUTEUR_PLATEAU / 2) lesX[0] = 1;
+    else if (lesY[0] == 0 && lesX[0] == LARGEUR_PLATEAU / 2) lesY[0] = HAUTEUR_PLATEAU - 2;
+    else if (lesY[0] == HAUTEUR_PLATEAU - 1 && lesX[0] == LARGEUR_PLATEAU / 2) lesY[0] = 1;
+
+	    // Vérification des collisions avec le corps du serpent
+    for (int i = 1; i < TAILLE; i++) {
+        if ((lesX[0] == lesX[i]) && (lesY[0] == lesY[i])) {
+            *collision = true;
+        }
+    }
+
    	dessinerSerpent(lesX, lesY);
 	nbDepUnitaires++;
 }
