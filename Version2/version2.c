@@ -130,15 +130,22 @@ int main()
 	// si toutes les pommes sont mangées
 	do {
 		if (lesX[0] < lesPommesX[nbPommes]) {
-			direction = DROITE;  // Aller à droite si la pomme est à droite
+			if (direction != GAUCHE) {
+				direction = DROITE;
+			}
 		} else if (lesX[0] > lesPommesX[nbPommes]) {
-			direction = GAUCHE;  // Aller à gauche si la pomme est à gauche
+			if (direction != DROITE) {
+				direction = GAUCHE;
+			}
 		} else if (lesY[0] < lesPommesY[nbPommes]) {
-			direction = BAS;     // Aller en bas si la pomme est en dessous
+			if (direction != HAUT) {
+				direction = BAS;
+			}
 		} else if (lesY[0] > lesPommesY[nbPommes]) {
-			direction = HAUT;    // Aller en haut si la pomme est au-dessus
+			if (direction != BAS) {
+				direction = HAUT;
+			}
 		}
-
 		progresser(lesX, lesY, direction, lePlateau, &collision, &pommeMangee);
 		if (pommeMangee)
 		{
