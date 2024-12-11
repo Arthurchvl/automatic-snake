@@ -37,7 +37,7 @@
 #define X_INITIAL 40
 #define Y_INITIAL 20
 // nombre de pommes à manger pour gagner
-#define NB_POMMES 1
+#define NB_POMMES 10
 // temporisation entre deux déplacements du serpent (en microsecondes)
 #define ATTENTE 200000
 // caractères pour représenter le serpent
@@ -91,11 +91,11 @@ int main()
     int lesX[TAILLE];
 	int lesY[TAILLE];
 
-	// représente la touche frappée par l'utilisateur : touche de direction ou pour l'arrêt
-	char touche;
-
 	//direction courante du serpent (HAUT, BAS, GAUCHE ou DROITE)
 	char direction;
+
+	//représente la touche frappée par l'utilisateur
+	char touche;
 
 	// le plateau de jeu
 	tPlateau lePlateau;
@@ -125,26 +125,20 @@ int main()
 	dessinerSerpent(lesX, lesY);
 	disable_echo();
 	direction = DROITE;
-	touche = DROITE;
 
 	// boucle de jeu. Arret si touche STOP, si collision avec une bordure ou
 	// si toutes les pommes sont mangées
 	do {
-		switch (touche)
-		{
-			case GAUCHE :
-				direction = GAUCHE;
-				break;
-			case HAUT 	:
-				direction = HAUT;
-				break;
-			case BAS 	:
-				direction = BAS;
-				break;
-			case DROITE :
-				direction = DROITE;
-				break;
+		if (lesX[0] < lesPommesX[nbPommes]) {
+			direction = DROITE;  // Aller à droite si la pomme est à droite
+		} else if (lesX[0] > lesPommesX[nbPommes]) {
+			direction = GAUCHE;  // Aller à gauche si la pomme est à gauche
+		} else if (lesY[0] < lesPommesY[nbPommes]) {
+			direction = BAS;     // Aller en bas si la pomme est en dessous
+		} else if (lesY[0] > lesPommesY[nbPommes]) {
+			direction = HAUT;    // Aller en haut si la pomme est au-dessus
 		}
+
 		progresser(lesX, lesY, direction, lePlateau, &collision, &pommeMangee);
 		if (pommeMangee)
 		{
