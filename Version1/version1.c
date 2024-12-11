@@ -83,8 +83,7 @@ void enable_echo();
 
 int main()
 {
-	time_t debut = clock();
-
+	
 	// 2 tableaux contenant les positions des éléments qui constituent le serpent
     int lesX[TAILLE];
 	int lesY[TAILLE];
@@ -123,17 +122,25 @@ int main()
 	dessinerSerpent(lesX, lesY);
 	disable_echo();
 	direction = DROITE;
+	time_t debut = clock();
 
 	// boucle de jeu. Arret si touche STOP, si collision avec une bordure ou
 	// si toutes les pommes sont mangées
 	do {
-		if (lesX[0] < lesPommesX[nbPommes]) {
+		if (lesX[0] < lesPommesX[nbPommes])
+		{
 			direction = DROITE;  // Aller à droite si la pomme est à droite
-		} else if (lesX[0] > lesPommesX[nbPommes]) {
+		}
+		else if (lesX[0] > lesPommesX[nbPommes])
+		{
 			direction = GAUCHE;  // Aller à gauche si la pomme est à gauche
-		} else if (lesY[0] < lesPommesY[nbPommes]) {
+		}
+		else if (lesY[0] < lesPommesY[nbPommes])
+		{
 			direction = BAS;     // Aller en bas si la pomme est en dessous
-		} else if (lesY[0] > lesPommesY[nbPommes]) {
+		}
+		else if (lesY[0] > lesPommesY[nbPommes])
+		{
 			direction = HAUT;    // Aller en haut si la pomme est au-dessus
 		}
 		progresser(lesX, lesY, direction, lePlateau, &collision, &pommeMangee);
@@ -161,14 +168,17 @@ int main()
 		}
 	} while ( (touche != STOP) && !collision && !gagne);
     enable_echo();
-	gotoxy(1, HAUTEUR_PLATEAU+1);
+	gotoxy(HAUTEUR_PLATEAU+1, 1);
 	if (gagne)
 	{
 		clock_t fin = clock();
 		enable_echo();
+		gotoxy(LARGEUR_PLATEAU + 2, 1);
+		printf("Le serpent s'est déplacé de %d cases.\n", nbDepUnitaires);
+		gotoxy(LARGEUR_PLATEAU + 2, 2);
+		printf("La partie a durée %.2f secondes.\n", (difftime(fin, debut) / CONVERTION_SECONDE) );
 		gotoxy(1, HAUTEUR_PLATEAU+1);
-		printf("Votre serpent s'est déplacé %d fois\n", nbDepUnitaires);
-		printf("La partie a durée %.2f seconde \n", (difftime(fin, debut) / CONVERTION_SECONDE) );
+
 	}
 	return EXIT_SUCCESS;
 }
