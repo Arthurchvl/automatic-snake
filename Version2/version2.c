@@ -97,7 +97,7 @@ int main()
 	//représente la touche frappée par l'utilisateur
 	char touche;
 
-	// le plateau de jeu
+	//initialise le plateau de jeu
 	tPlateau lePlateau;
 
 	bool collision = false;
@@ -236,10 +236,8 @@ void dessinerPlateau(tPlateau plateau)
 
 void ajouterPomme(tPlateau plateau)
 {
-	// génère aléatoirement la position d'une pomme,
-	// vérifie que ça correspond à une case vide
-	// du plateau puis l'ajoute au plateau et l'affiche
-	plateau[lesPommesX[nbPommes]][lesPommesY[nbPommes]] = POMME;
+	// génère la position d'une pomme aux coordonnées définies,
+	//plateau[lesPommesX[nbPommes]][lesPommesY[nbPommes]] = POMME;
 	afficher(lesPommesX[nbPommes], lesPommesY[nbPommes], POMME);
 }
 

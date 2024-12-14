@@ -1,3 +1,4 @@
+
 /**
  * @file version2.c
  * @brief automatisation d'un jeu snake créé lors de la SAE 1.01
@@ -43,11 +44,11 @@
 // caractères pour représenter le serpent
 #define CORPS 'X'
 #define TETE 'O'
-// touches de direction ou d'arrêt du jeu
+/** // touches de direction ou d'arrêt du jeu
 #define HAUT 'z'
 #define BAS 's'
 #define GAUCHE 'q'
-#define DROITE 'd'
+#define DROITE 'd'*/
 #define STOP 'a'
 // caractères pour les éléments du plateau
 #define BORDURE '#'
