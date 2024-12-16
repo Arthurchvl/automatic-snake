@@ -18,7 +18,6 @@
  * et le temps CPU du programme.
  */
 
-/* Fichiers inclus */
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -27,160 +26,157 @@
 #include <fcntl.h>
 #include <time.h>
 
+// Game configuration
+#define TAILLE 10              // Snake length
+#define LARGEUR_PLATEAU 80     // Board width
+#define HAUTEUR_PLATEAU 40     // Board height
+#define X_INITIAL 40           // Initial snake head x-position
+#define Y_INITIAL 20           // Initial snake head y-position
+#define NB_POMMES 10           // Number of apples to eat to win
+#define ATTENTE 200000         // Movement delay (microseconds)
+#define CONVERTION_SECONDE 1000 // Time conversion factor
 
-// taille du serpent
-#define TAILLE 10
-// dimensions du plateau
-#define LARGEUR_PLATEAU 80	
-#define HAUTEUR_PLATEAU 40
-// position initiale de la tête du serpent
-#define X_INITIAL 40
-#define Y_INITIAL 20
-// nombre de pommes à manger pour gagner
-#define NB_POMMES 10
-// temporisation entre deux déplacements du serpent (en microsecondes)
-#define ATTENTE 200000
-// caractères pour représenter le serpent
-#define CORPS 'X'
-#define TETE 'O'
-// touches de direction ou d'arrêt du jeu
+// Game characters
+#define CORPS 'X'   // Snake body
+#define TETE 'O'    // Snake head
+#define BORDURE '#' // Border
+#define VIDE ' '    // Empty space
+#define POMME '6'   // Apple
+
+// Directions
 #define HAUT 'z'
 #define BAS 's'
 #define GAUCHE 'q'
 #define DROITE 'd'
 #define STOP 'a'
-// caractères pour les éléments du plateau
-#define BORDURE '#'
-#define VIDE ' '
-#define POMME '6'
-// nombre servant a la convertion du temps en seconde
-#define CONVERTION_SECONDE 1000
 
+// Predefined apple positions
+int lesPommesX[NB_POMMES] = {75, 75, 78, 2, 8, 78, 74, 2, 72, 5};
+int lesPommesY[NB_POMMES] = {8, 39, 2, 2, 5, 39, 33, 38, 35, 2};
 
-// définition d'un type pour le plateau : tPlateau
-// Attention, pour que les indices du tableau 2D (qui commencent à 0) coincident
-// avec les coordonées à l'écran (qui commencent à 1), on ajoute 1 aux dimensions
-// et on neutralise la ligne 0 et la colonne 0 du tableau 2D (elles ne sont jamais
-// utilisées)
-int lesPommesX[NB_POMMES] = {75, 75, 78, 2, 8, 78, 74,  2, 72, 5};
-int lesPommesY[NB_POMMES] = { 8, 39,  2, 2, 5, 39, 33, 38, 35, 2};
+// Type definition for game board
 typedef char tPlateau[LARGEUR_PLATEAU+1][HAUTEUR_PLATEAU+1];
-// compteur de pommes mangées
+
+// Global variables
 int nbPommes = 0;
 int nbDepUnitaires = 0;
 
-/* Déclaration des fonctions et procédures (les prototypes) */
+// Function prototypes
 void initPlateau(tPlateau plateau);
 void dessinerPlateau(tPlateau plateau);
 void ajouterPomme(tPlateau plateau);
-void afficher(int, int, char);
+void afficher(int x, int y, char car);
 void effacer(int x, int y);
 void dessinerSerpent(int lesX[], int lesY[]);
-void progresser(int lesX[], int lesY[], char direction, tPlateau plateau, bool * collision, bool * pomme);
+void progresser(int lesX[], int lesY[], char direction, tPlateau plateau, bool *collision, bool *pomme);
 void gotoxy(int x, int y);
 int kbhit();
 void disable_echo();
 void enable_echo();
-
+bool estDeplacementValide(int lesX[], int lesY[], char nouvelleDirection, char directionPrecedente);
 
 int main()
 {
-	time_t debut = clock();
+    time_t debut = clock();
 
-	// 2 tableaux contenant les positions des éléments qui constituent le serpent
     int lesX[TAILLE];
-	int lesY[TAILLE];
+    int lesY[TAILLE];
 
-	//direction courante du serpent (HAUT, BAS, GAUCHE ou DROITE)
-	char direction;
+    char direction;
+    char directionPrecedente;
+    char touche = 0;
 
-	//représente la touche frappée par l'utilisateur
-	char touche;
+    tPlateau lePlateau;
 
-	//initialise le plateau de jeu
-	tPlateau lePlateau;
-
-	bool collision = false;
-	bool gagne = false;
-	bool pommeMangee = false;
+    bool collision = false;
+    bool gagne = false;
+    bool pommeMangee = false;
    
-	// initialisation de la position du serpent : positionnement de la
-	// tête en (X_INITIAL, Y_INITIAL), puis des anneaux à sa gauche
-	for(int i=0 ; i<TAILLE ; i++)
-	{
-		lesX[i] = X_INITIAL-i;
-		lesY[i] = Y_INITIAL;
-	}
+    // Initialize snake position
+    for(int i = 0 ; i < TAILLE ; i++)
+    {
+        lesX[i] = X_INITIAL - i;
+        lesY[i] = Y_INITIAL;
+    }
 
-	// mise en place du plateau
-	initPlateau(lePlateau);
-	system("clear");
-	dessinerPlateau(lePlateau);
+    // Setup game board
+    initPlateau(lePlateau);
+    system("clear");
+    dessinerPlateau(lePlateau);
 
+    srand(time(NULL));
+    ajouterPomme(lePlateau);
 
-	srand(time(NULL));
-	ajouterPomme(lePlateau);
+    dessinerSerpent(lesX, lesY);
+    disable_echo();
+    direction = DROITE;
+    directionPrecedente = DROITE;
 
-	// initialisation : le serpent se dirige vers la DROITE
-	dessinerSerpent(lesX, lesY);
-	disable_echo();
-	direction = DROITE;
+    // Main game loop
+    do {
+		
+        // Try to move towards the current apple
+        if (lesX[0] < lesPommesX[nbPommes] && estDeplacementValide(lesX, lesY, DROITE, directionPrecedente)) {
+            direction = DROITE;
+        } else if (lesX[0] > lesPommesX[nbPommes] && estDeplacementValide(lesX, lesY, GAUCHE, directionPrecedente)) {
+            direction = GAUCHE;
+        } else if (lesY[0] < lesPommesY[nbPommes] && estDeplacementValide(lesX, lesY, BAS, directionPrecedente)) {
+            direction = BAS;
+        } else if (lesY[0] > lesPommesY[nbPommes] && estDeplacementValide(lesX, lesY, HAUT, directionPrecedente)) {
+            direction = HAUT;
+        }
 
-	// boucle de jeu. Arret si touche STOP, si collision avec une bordure ou
-	// si toutes les pommes sont mangées
-	do {
-		if (lesX[0] < lesPommesX[nbPommes]) {
-			if (direction != GAUCHE) {
-				direction = DROITE;
-			}
-		} else if (lesX[0] > lesPommesX[nbPommes]) {
-			if (direction != DROITE) {
-				direction = GAUCHE;
-			}
-		} else if (lesY[0] < lesPommesY[nbPommes]) {
-			if (direction != HAUT) {
-				direction = BAS;
-			}
-		} else if (lesY[0] > lesPommesY[nbPommes]) {
-			if (direction != BAS) {
-				direction = HAUT;
-			}
-		}
-		progresser(lesX, lesY, direction, lePlateau, &collision, &pommeMangee);
-		if (pommeMangee)
-		{
+        progresser(lesX, lesY, direction, lePlateau, &collision, &pommeMangee);
+        
+        if (pommeMangee)
+        {
             nbPommes++;
-			gagne = (nbPommes==NB_POMMES);
-			if (!gagne)
-			{
-				ajouterPomme(lePlateau);
-				pommeMangee = false;
-			}	
-			
-		}
-		if (!gagne)
-		{
-			if (!collision)
-			{
-				usleep(ATTENTE);
-				if (kbhit()==1)
-				{
-					touche = getchar();
-				}
-			}
-		}
-	} while ( (touche != STOP) && !collision && !gagne);
+            gagne = (nbPommes == NB_POMMES);
+            if (!gagne)
+            {
+                ajouterPomme(lePlateau);
+                pommeMangee = false;
+            }   
+        }
+        
+        if (!gagne)
+        {
+            if (!collision)
+            {
+                usleep(ATTENTE);
+                if (kbhit() == 1)
+                {
+                    touche = getchar();
+                }
+            }
+        }
+        directionPrecedente = direction;
+    } while ((touche != STOP) && !collision && !gagne);
+
     enable_echo();
-	gotoxy(1, HAUTEUR_PLATEAU+1);
-	if (gagne)
-	{
-		clock_t fin = clock();
-		enable_echo();
-		gotoxy(1, HAUTEUR_PLATEAU+1);
-		printf("Votre serpent s'est déplacé %d fois\n", nbDepUnitaires);
-		printf("La partie a durée %.2f seconde \n", (difftime(fin, debut) / CONVERTION_SECONDE) );
-	}
-	return EXIT_SUCCESS;
+    gotoxy(1, HAUTEUR_PLATEAU + 1);
+    
+    if (gagne)
+    {
+        clock_t fin = clock();
+        printf("Votre serpent s'est déplacé %d fois\n", nbDepUnitaires);
+        printf("La partie a durée %.2f seconde\n", (difftime(fin, debut) / CONVERTION_SECONDE));
+    }
+    return EXIT_SUCCESS;
+}
+
+// New function to prevent snake from turning back on itself
+bool estDeplacementValide(int lesX[], int lesY[], char nouvelleDirection, char directionPrecedente)
+{
+    // Cannot turn back 180 degrees
+    if ((nouvelleDirection == DROITE && directionPrecedente == GAUCHE) ||
+        (nouvelleDirection == GAUCHE && directionPrecedente == DROITE) ||
+        (nouvelleDirection == HAUT && directionPrecedente == BAS) ||
+        (nouvelleDirection == BAS && directionPrecedente == HAUT)) {
+        return false;
+    }
+    
+    return true;
 }
 
 
