@@ -26,6 +26,7 @@
 #include <termios.h>
 #include <fcntl.h>
 #include <time.h>
+#include <math.h>
 
 
 // taille du serpent
@@ -77,6 +78,8 @@ void afficher(int, int, char);
 void effacer(int x, int y);
 void dessinerSerpent(int lesX[], int lesY[]);
 void progresser(int lesX[], int lesY[], char direction, tPlateau plateau, bool * collision, bool * pomme);
+int distance(int x1, int y1, int x2, int y2);
+int calculerDistanceMinimale(int teteX, int teteY, int pommeX, int pommeY);
 void gotoxy(int x, int y);
 int kbhit();
 void disable_echo();
@@ -139,19 +142,72 @@ int main()
 		} else if (lesY[0] > lesPommesY[nbPommes]) {
 				direction = HAUT;
 		} else if (((lesPommesX[nbPommes] >= 1) && (lesPommesX[nbPommes] <= 40)) &&
-                    ((lesPommesY[nbPommes] >= 1) && (lesPommesY[nbPommes] <= 20)) &&
-                    ((lesX[0] >= 40) && (lesX[0] <= 80)) &&
-                    ((lesY[0] >= 20) && (lesY[0] <= 40)))
-        {
-            if (lesX[0] == LARGEUR_PLATEAU/2){
-               while (lesX[0] != 2)
-               {
-                direction = BAS;
-                progresser(lesX, lesY, direction, lePlateau, &collision, &pommeMangee);
-               } 
-            }
-        }
+            ((lesPommesY[nbPommes] >= 1) && (lesPommesY[nbPommes] <= 20)) &&
+            ((lesX[0] >= 40) && (lesX[0] <= 80)) &&
+            ((lesY[0] >= 20) && (lesY[0] <= 40))) {
+			if (lesX[0] == LARGEUR_PLATEAU/2){
+			while (lesX[0] != 2)
+			{
+				direction = BAS;
+				progresser(lesX, lesY, direction, lePlateau, &collision, &pommeMangee);
+			} 
+			} else if (lesY[0] == HAUTEUR_PLATEAU/2){
+				while (lesX[0] != 2)
+				{
+					direction = DROITE;
+					progresser(lesX, lesY, direction, lePlateau, &collision, &pommeMangee);
+				}
+			}
+		} else if (((lesPommesX[nbPommes] >= 40) && (lesPommesX[nbPommes] <= 80)) &&
+            ((lesPommesY[nbPommes] >= 20) && (lesPommesY[nbPommes] <= 40)) &&
+            ((lesX[0] >= 1) && (lesX[0] <= 40)) &&
+            ((lesY[0] >= 1) && (lesY[0] <= 20)))
+			{
+				while (lesX[0] != 39)
+				{
+					direction = HAUT;
+					progresser(lesX, lesY, direction, lePlateau, &collision, &pommeMangee);
+				}
+			}
+
+		int distMinimale = calculerDistanceMinimale(lesX[0], lesY[0], lesPommesX[nbPommes], lesPommesY[nbPommes]);
+				if (distMinimale == 1){
+						if (lesY[0] == HAUTEUR_PLATEAU/2){
+							direction = GAUCHE;
+							do {
+								progresser(lesX, lesY, direction, lePlateau, &collision, &pommeMangee);
+							} while (lesX[0] != LARGEUR_PLATEAU-1);
+						}
+				} else if (distMinimale == 2){
+					{
+						if (lesY[0] == HAUTEUR_PLATEAU/2){
+							direction = DROITE;
+							do {
+								progresser(lesX, lesY, direction, lePlateau, &collision, &pommeMangee);
+							} while (lesX[0] != 2);
+						}
+					}
+				} else if (distMinimale == 3){
+						if (lesX[0] == LARGEUR_PLATEAU/2){
+							direction = HAUT;
+							do {
+								progresser(lesX, lesY, direction, lePlateau, &collision, &pommeMangee);
+							} while (lesY[0] != HAUTEUR_PLATEAU/2);
+							if (lesX[0] == HAUTEUR_PLATEAU/2){
+								direction = (lesPommesX[nbPommes] > LARGEUR_PLATEAU/2) ? DROITE : GAUCHE;
+							}
+						}
+				} else if (distMinimale == 4){
+					if (lesX[0] == LARGEUR_PLATEAU/2){
+							direction = BAS;
+							do {
+								progresser(lesX, lesY, direction, lePlateau, &collision, &pommeMangee);
+							} while (lesY[0] != 2);
+						}
+				}
+		
 		progresser(lesX, lesY, direction, lePlateau, &collision, &pommeMangee);
+
 		if (pommeMangee)
 		{
             nbPommes++;
@@ -190,6 +246,7 @@ int main()
 				}
 			}
 		}
+
 		if (!gagne)
 		{
 			if (!collision)
@@ -222,7 +279,7 @@ int main()
 void initPlateau(tPlateau plateau)
 {
 	int i, j;
-	// initialisation du plateau avec des espaces
+
 	for (i = 1 ; i <= LARGEUR_PLATEAU ; i++)
 	{
 		for (int j=1 ; j <= HAUTEUR_PLATEAU ; j++)
@@ -230,19 +287,18 @@ void initPlateau(tPlateau plateau)
 			plateau[i][j] = VIDE;
 		}
 	}
-	// Mise en place la bordure autour du plateau
-	// première ligne
+	
 	for (i = 1 ; i <= LARGEUR_PLATEAU ; i++)
 	{
 		plateau[i][1] = BORDURE;
 	}
-	// lignes intermédiaires
+	
 	for (j = 1 ; j <= HAUTEUR_PLATEAU ; j++)
 	{
 			plateau[1][j] = BORDURE;
 			plateau[LARGEUR_PLATEAU][j] = BORDURE;
 		}
-	// dernière ligne
+	
 	for (i = 1; i <= LARGEUR_PLATEAU ; i++)
 	{
 		plateau[i][HAUTEUR_PLATEAU] = BORDURE;
@@ -359,7 +415,41 @@ void progresser(int lesX[], int lesY[], char direction, tPlateau plateau, bool *
 	nbDepUnitaires++;
 }
 
+int distance(int x1, int y1, int x2, int y2) {
+    return abs(x1 - x2) + abs(y1 - y2);
+}
 
+int calculerDistanceMinimale(int teteX, int teteY, int pommeX, int pommeY) {
+	int tabDistance[5] = {0, 0, 0, 0, 0};
+    int distDirecte = distance(teteX, teteY, pommeX, pommeY);
+	tabDistance[0] = distDirecte;
+    
+    int distGauche = distance(1, HAUTEUR_PLATEAU / 2, teteX, teteY) 
+                         + distance(LARGEUR_PLATEAU - 1, HAUTEUR_PLATEAU / 2, pommeX, pommeY);
+	tabDistance[1] = distGauche;
+    int distDroite = distance(LARGEUR_PLATEAU - 1, HAUTEUR_PLATEAU / 2, teteX, teteY) 
+                         + distance(1, HAUTEUR_PLATEAU / 2, pommeX, pommeY);
+	tabDistance[2] = distDroite;
+    int distHaut = distance(LARGEUR_PLATEAU / 2, 1, teteX, teteY)
+                    + distance(LARGEUR_PLATEAU / 2, HAUTEUR_PLATEAU - 1, pommeX, pommeY); 
+	tabDistance[3] = distHaut;
+    int distBas = distance(LARGEUR_PLATEAU / 2, HAUTEUR_PLATEAU - 1, teteX, teteY)
+                    + distance(LARGEUR_PLATEAU / 2, 1, pommeX, pommeY);
+	tabDistance[4] = distBas;
+
+	int distMin = 0;
+	int min = tabDistance[0];
+    for (int i = 0 ; i < 5 ; i++)
+	{
+		if (min > tabDistance[i])
+		{
+			min = tabDistance[i];
+			distMin = i;
+		}
+	}
+
+    return distMin;
+}
 
 /************************************************/
 /*				 FONCTIONS UTILITAIRES 			*/

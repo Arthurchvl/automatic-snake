@@ -27,7 +27,6 @@
 #include <fcntl.h>
 #include <time.h>
 
-
 // taille du serpent
 #define TAILLE 10
 // dimensions du plateau
