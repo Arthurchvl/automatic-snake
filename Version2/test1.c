@@ -85,6 +85,7 @@ int main()
 
     //direction courante du serpent (HAUT, BAS, GAUCHE ou DROITE)
     char direction = DROITE;
+    char directionTemp;
 
     // le plateau de jeu
     tPlateau lePlateau;
@@ -158,7 +159,6 @@ int main()
         printf("La partie a durée %.2f secondes.\n", (difftime(fin, debut) / CONVERTION_SECONDE) );
         gotoxy(1, HAUTEUR_PLATEAU+1);
     }
-    
     return EXIT_SUCCESS;
 }
 
@@ -343,7 +343,6 @@ void progresser(int lesX[], int lesY[], char* direction, tPlateau plateau, bool 
     nbDepUnitaires++;
 }
 
-/* Les autres fonctions utilitaires restent identiques à la version précédente */
 void gotoxy(int x, int y)
 { 
     printf("\033[%d;%df", y, x);

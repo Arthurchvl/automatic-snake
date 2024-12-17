@@ -138,7 +138,19 @@ int main()
 				direction = BAS;
 		} else if (lesY[0] > lesPommesY[nbPommes]) {
 				direction = HAUT;
-		}
+		} else if (((lesPommesX[nbPommes] >= 1) && (lesPommesX[nbPommes] <= 40)) &&
+                    ((lesPommesY[nbPommes] >= 1) && (lesPommesY[nbPommes] <= 20)) &&
+                    ((lesX[0] >= 40) && (lesX[0] <= 80)) &&
+                    ((lesY[0] >= 20) && (lesY[0] <= 40)))
+        {
+            if (lesX[0] == LARGEUR_PLATEAU/2){
+               while (lesX[0] != 2)
+               {
+                direction = BAS;
+                progresser(lesX, lesY, direction, lePlateau, &collision, &pommeMangee);
+               } 
+            }
+        }
 		progresser(lesX, lesY, direction, lePlateau, &collision, &pommeMangee);
 		if (pommeMangee)
 		{
