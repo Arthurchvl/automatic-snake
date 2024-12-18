@@ -45,10 +45,10 @@
 #define CORPS 'X'
 #define TETE 'O'
 // touches de direction ou d'arrêt du jeu
-#define HAUT 3
-#define BAS 4
-#define GAUCHE 1
-#define DROITE 2
+#define HAUT 'z'
+#define BAS 's'
+#define GAUCHE 'q'
+#define DROITE 'd'
 #define STOP 'a'
 // caractères pour les éléments du plateau
 #define BORDURE '#'
@@ -132,97 +132,47 @@ int main()
 
 	// boucle principale du jeu. Arrêt si touche STOP (a), si collision avec une bordure ou
 	// si toutes les pommes sont mangées
-	do {
-		// conditions de changements de direction du serpent
-		if (lesX[0] < xPomme[nbPommes]) {
-				direction = DROITE;
-		} else if (lesX[0] > xPomme[nbPommes]) {
-				direction = GAUCHE;
-		} else if (lesY[0] < yPomme[nbPommes]) {
-				direction = BAS;
-		} else if (lesY[0] > yPomme[nbPommes]) {
-				direction = HAUT;
-		}
+    do {
+        // Calcul des distances vers la pomme
+        int dx = xPomme[nbPommes] - lesX[0];
+        int dy = yPomme[nbPommes] - lesY[0];
 
-		// boucle permettant au serpent d'emprunter une issue
-		// si le chemin par celle ci est plus court
-		int distMin = 0;
-		distMin = calculerDist(lesX[0], lesY[0], xPomme[nbPommes], yPomme[nbPommes]);
-		switch (distMin){
-			case GAUCHE:
-			if (lesY[0] == HAUTEUR_PLATEAU/2){
-				direction = GAUCHE;
-			}
-			break;
-			case DROITE :
-			if (lesY[0] == HAUTEUR_PLATEAU/2){
-				direction = DROITE;
-			}
-			break;
-			case HAUT :
-			if (lesX[0] == LARGEUR_PLATEAU/2){
-				direction = HAUT;
-			}
-			break;
-			case BAS :
-			if (lesX[0] == LARGEUR_PLATEAU/2){
-				direction = BAS;
-			}
-		}
-		
-		progresser(lesX, lesY, direction, lePlateau, &collision, &pommeMangee);
+        // Priorité à l'axe où le déplacement est possible
+        if (dx != 0) { // Axe horizontal
+            if (dx > 0 && lePlateau[lesX[0] + 1][lesY[0]] != BORDURE && lePlateau[lesX[0] + 1][lesY[0]] != CORPS) {
+                direction = DROITE;
+            } else if (dx < 0 && lePlateau[lesX[0] - 1][lesY[0]] != BORDURE && lePlateau[lesX[0] - 1][lesY[0]] != CORPS) {
+                direction = GAUCHE;
+            }
+        }
 
-		if (pommeMangee)
-		{
+        if (dy != 0 && (direction != DROITE && direction != GAUCHE)) { // Axe vertical (si horizontal bloqué)
+            if (dy > 0 && lePlateau[lesX[0]][lesY[0] + 1] != BORDURE && lePlateau[lesX[0]][lesY[0] + 1] != CORPS) {
+                direction = BAS;
+            } else if (dy < 0 && lePlateau[lesX[0]][lesY[0] - 1] != BORDURE && lePlateau[lesX[0]][lesY[0] - 1] != CORPS) {
+                direction = HAUT;
+            }
+        }
+
+        // Si aucune direction valide, serpent bloqué (éviter boucle infinie)
+        if ((dx == 0 && dy == 0) || (direction != DROITE && direction != GAUCHE && direction != HAUT && direction != BAS)) {
+            collision = 1;
+        }
+
+        // Déplacement du serpent
+        progresser(lesX, lesY, direction, lePlateau, &collision, &pommeMangee);
+
+        // Gestion de la pomme si mangée
+        if (pommeMangee) {
             nbPommes++;
-			gagne = (nbPommes == NB_POMMES);
-			if (!gagne)
-			{
-				ajouterPomme(lePlateau);
-				pommeMangee = false;
+            gagne = (nbPommes == NB_POMMES);
+            if (!gagne) ajouterPomme(lePlateau);
+        }
 
-				if (lesX[0] == xPomme[nbPommes])
-				{
-					if ((direction == HAUT) || (direction == BAS))
-					{
-						directionTemp = direction;
-						if (xPomme[nbPommes] > 20)
-						{
-							direction = GAUCHE;
-							progresser(lesX, lesY, direction, lePlateau, &collision, &pommeMangee);
-							direction = (directionTemp = HAUT) ? BAS : HAUT;
-							for (int i = 0 ; i < TAILLE ; i++){
-								progresser(lesX, lesY, direction, lePlateau, &collision, &pommeMangee);
-							}
-						} else {
-							direction = DROITE;
-							progresser(lesX, lesY, direction, lePlateau, &collision, &pommeMangee);
-							for (int i = 0; i < TAILLE ; i++)
-							{
-								direction = (directionTemp = HAUT) ? BAS : HAUT;
-								progresser(lesX, lesY, direction, lePlateau, &collision, &pommeMangee);
-							}
-						}
-					}
-				} else if ((lesX[0] == 2) && (lesY[0] == 2)){
-					direction = (direction == GAUCHE)? BAS : DROITE;
-					progresser(lesX, lesY, direction, lePlateau, &collision, &pommeMangee);
-				}
-			}
-		}
+        // Attente entre les déplacements
+        if (!gagne && !collision) usleep(ATTENTE);
 
-		if (!gagne)
-		{
-			if (!collision)
-			{
-				usleep(ATTENTE);
-				if (kbhit()==1)
-				{
-					touche = getchar();
-				}
-			}
-		}
-	} while ( (touche != STOP) && !collision && !gagne);
+    } while (!collision && !gagne && touche != STOP);
     enable_echo();
 	gotoxy(1, HAUTEUR_PLATEAU+1);
 	if (gagne)
@@ -384,36 +334,32 @@ void progresser(int lesX[], int lesY[], char direction, tPlateau plateau, bool *
 }
 
 int distance(int x1, int y1, int x2, int y2) {
-    return sqrt(((abs(x1 - x2)) * (abs(x1 - x2))) + ((abs(y1 - y2))*abs(y1 - y2))) ;
+    return abs(x1 - x2) + abs(y1 - y2);
 }
 
 int calculerDist(int teteX, int teteY, int pommeX, int pommeY) {
 	int tabDistance[5] = {0, 0, 0, 0, 0};
-
     int distDirecte = distance(teteX, teteY, pommeX, pommeY);
 	tabDistance[0] = distDirecte;
     
     int distGauche = distance(1, HAUTEUR_PLATEAU / 2, teteX, teteY) 
                          + distance(LARGEUR_PLATEAU - 1, HAUTEUR_PLATEAU / 2, pommeX, pommeY);
 	tabDistance[1] = distGauche;
-
     int distDroite = distance(LARGEUR_PLATEAU - 1, HAUTEUR_PLATEAU / 2, teteX, teteY) 
                          + distance(1, HAUTEUR_PLATEAU / 2, pommeX, pommeY);
 	tabDistance[2] = distDroite;
-
     int distHaut = distance(LARGEUR_PLATEAU / 2, 1, teteX, teteY)
                     + distance(LARGEUR_PLATEAU / 2, HAUTEUR_PLATEAU - 1, pommeX, pommeY); 
 	tabDistance[3] = distHaut;
-
     int distBas = distance(LARGEUR_PLATEAU / 2, HAUTEUR_PLATEAU - 1, teteX, teteY)
                     + distance(LARGEUR_PLATEAU / 2, 1, pommeX, pommeY);
 	tabDistance[4] = distBas;
 
 	int distMin = 0;
 	int min = tabDistance[0];
-    for (int i = 1 ; i < 5 ; i++)
+    for (int i = 0 ; i < 5 ; i++)
 	{
-		if (min >= tabDistance[i])
+		if (min > tabDistance[i])
 		{
 			min = tabDistance[i];
 			distMin = i;
