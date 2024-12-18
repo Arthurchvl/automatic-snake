@@ -18,6 +18,7 @@
  * et le temps CPU réalisé par le programme sont affichés.
  */
 
+
 /* Fichiers inclus */
 #include <stdio.h>
 #include <stdlib.h>
@@ -39,7 +40,7 @@
 // nombre de pommes à manger pour gagner
 #define NB_POMMES 10
 // temporisation entre deux déplacements du serpent (en microsecondes)
-#define ATTENTE 20000
+#define ATTENTE 200000
 // caractères pour représenter le serpent
 #define CORPS 'X'
 #define TETE 'O'
@@ -70,9 +71,9 @@
 // avec les coordonées à l'écran (qui commencent à 1), on ajoute 1 aux dimensions
 // et on neutralise la ligne 0 et la colonne 0 du tableau 2D (elles ne sont jamais
 // utilisées)
-int lesPommesX[NB_POMMES] = {75, 75, 78, 2, 8, 78, 74,  2, 72, 5};
-int lesPommesY[NB_POMMES] = { 8, 39,  2, 2, 5, 39, 33, 38, 35, 2};
-typedef char tPlateau[LARGEUR_PLATEAU+1][HAUTEUR_PLATEAU+1];
+int lesPommesX[10] = {75, 75, 78, 2, 8, 78, 74,  2, 72, 5};
+int lesPommesY[10] = { 8, 39,  2, 2, 5, 39, 33, 38, 35, 2};
+typedef char tPlateau[LARGEUR_PLATEAU + 1][HAUTEUR_PLATEAU + 1];
 
 int nbPommes = 0;
 
@@ -121,7 +122,7 @@ int main()
 
 	// initialisation de la position du serpent : positionnement de la
 	// tête en (X_INITIAL, Y_INITIAL), puis des anneaux à sa gauche
-	for (int i = 0; i < TAILLE; i++)
+	for (int i = 0 ; i < TAILLE ; i++)
 	{
 		lesX[i] = X_INITIAL - i;
 		lesY[i] = Y_INITIAL;
@@ -209,7 +210,8 @@ int main()
 			if (!gagne)
 			{
 				ajouterPomme(lePlateau, nbPommes);
-				meilleurDistance = calculerDistance(lesX, lesY, lesPommesX[nbPommes], lesPommesY[nbPommes]); // recalcul la meilleur position après l'apparition d'une nouvelle pomme
+				// recalcul la meilleur position après l'apparition d'une nouvelle pomme
+				meilleurDistance = calculerDistance(lesX, lesY, lesPommesX[nbPommes], lesPommesY[nbPommes]); 
 				pommeMangee = false;
 			}
 		}
@@ -229,7 +231,7 @@ int main()
 	gotoxy(1, HAUTEUR_PLATEAU + 1);
 
 	clock_t end = clock(); // fin du calcul du temps CPU
-	double tmpsCPU = ((end - begin) * 1.0) / CLOCKS_PER_SEC;
+	double tmpsCPU = ( (end - begin) * 1.0 ) / CLOCKS_PER_SEC;
 
 	// afficher les performances du programme
 	printf("Le temps CPU est de : %.3f\n", tmpsCPU);
@@ -245,22 +247,22 @@ int main()
 void initPlateau(tPlateau plateau)
 {
 	// initialisation du plateau avec des espaces
-	for (int i = 1; i <= LARGEUR_PLATEAU; i++)
+	for (int i = 1 ; i <= LARGEUR_PLATEAU ; i++)
 	{
-		for (int j = 1; j <= HAUTEUR_PLATEAU; j++)
+		for (int j = 1 ; j <= HAUTEUR_PLATEAU ; j++)
 		{
 			plateau[i][j] = VIDE;
 		}
 	}
 	// Mise en place la bordure autour du plateau
 	// première ligne
-	for (int i = 1; i <= LARGEUR_PLATEAU; i++)
+	for (int i = 1 ; i <= LARGEUR_PLATEAU ; i++)
 	{
 		plateau[i][1] = BORDURE;
 		plateau[LARGEUR_PLATEAU / 2][1] = VIDE; // trou du haut
 	}
 	// lignes intermédiaires
-	for (int j = 1; j <= HAUTEUR_PLATEAU; j++)
+	for (int j = 1 ; j <= HAUTEUR_PLATEAU ; j++)
 	{
 		plateau[1][j] = BORDURE;
 		plateau[1][HAUTEUR_PLATEAU / 2] = VIDE; // trou de gauche
@@ -268,7 +270,7 @@ void initPlateau(tPlateau plateau)
 		plateau[LARGEUR_PLATEAU][HAUTEUR_PLATEAU / 2] = VIDE; // trou de droite
 	}
 	// dernière ligne
-	for (int i = 1; i <= LARGEUR_PLATEAU; i++)
+	for (int i = 1 ; i <= LARGEUR_PLATEAU ; i++)
 	{
 		plateau[i][HAUTEUR_PLATEAU] = BORDURE;
 		plateau[LARGEUR_PLATEAU / 2][HAUTEUR_PLATEAU] = VIDE; // trou du bas
@@ -279,7 +281,8 @@ void dessinerPlateau(tPlateau plateau)
 {
 	int i, j;
 	// affiche eà l'écran le contenu du tableau 2D représentant le plateau
-	for (i = 1 ; i <= LARGEUR_PLATEAU ; i++){
+	for (i = 1 ; i <= LARGEUR_PLATEAU ; i++)
+	{
 		for (j = 1 ; j <= HAUTEUR_PLATEAU ; j++)
 		{
 			afficher(i, j, plateau[i][j]);
@@ -306,14 +309,14 @@ void afficher(int x, int y, char car)
 {
 	gotoxy(x, y);
 	printf("%c", car);
-	gotoxy(1,1);
+	gotoxy(1, 1);
 }
 
 void effacer(int x, int y)
 {
 	gotoxy(x, y);
 	printf(" ");
-	gotoxy(1,1);
+	gotoxy(1, 1);
 }
 
 void dessinerSerpent(int lesX[], int lesY[])
@@ -324,7 +327,7 @@ void dessinerSerpent(int lesX[], int lesY[])
 	{
 		afficher(lesX[i], lesY[i], CORPS);
 	}
-	afficher(lesX[0], lesY[0],TETE);
+	afficher(lesX[0], lesY[0], TETE);
 }
 
 void directionSerpentVersObjectif(int lesX[], int lesY[], tPlateau plateau, char *direction, int objectifX, int objectifY)
@@ -382,27 +385,36 @@ int calculerDistance(int lesX[], int lesY[], int pommeX, int pommeY)
 	int passageTrouGauche, passageTrouDroit, passageTrouHaut, passageTrouBas, passageDirectPomme;
 
 	// calcul la distance pour chaque chemin du serpent vers la pomme
-	passageTrouGauche = abs(lesX[0] - ISSUE_GAUCHE_X) + abs(lesY[0] - ISSUE_GAUCHE_Y) + abs(pommeX - ISSUE_DROITE_X) + abs(pommeY - ISSUE_DROITE_Y);
-	passageTrouDroit = abs(lesX[0] - ISSUE_DROITE_X) + abs(lesY[0] - ISSUE_DROITE_Y) + abs(pommeX - ISSUE_GAUCHE_X) + abs(pommeY - ISSUE_GAUCHE_Y);
-	passageTrouHaut = abs(lesX[0] - ISSUE_HAUT_X) + abs(lesY[0] - ISSUE_HAUT_Y) + abs(pommeX - ISSUE_BAS_X) + abs(pommeY - ISSUE_BAS_Y);
-	passageTrouBas = abs(lesX[0] - ISSUE_BAS_X) + abs(lesY[0] - ISSUE_BAS_Y) + abs(pommeX - ISSUE_HAUT_X) + abs(pommeY - ISSUE_HAUT_Y);
+	passageTrouGauche = abs(lesX[0] - ISSUE_GAUCHE_X) + abs(lesY[0] - ISSUE_GAUCHE_Y) + 
+		abs(pommeX - ISSUE_DROITE_X) + abs(pommeY - ISSUE_DROITE_Y);
+	passageTrouDroit = abs(lesX[0] - ISSUE_DROITE_X) + abs(lesY[0] - ISSUE_DROITE_Y) + 
+		abs(pommeX - ISSUE_GAUCHE_X) + abs(pommeY - ISSUE_GAUCHE_Y);
+	passageTrouHaut = abs(lesX[0] - ISSUE_HAUT_X) + abs(lesY[0] - ISSUE_HAUT_Y) + 
+		abs(pommeX - ISSUE_BAS_X) + abs(pommeY - ISSUE_BAS_Y);
+	passageTrouBas = abs(lesX[0] - ISSUE_BAS_X) + abs(lesY[0] - ISSUE_BAS_Y) + 
+		abs(pommeX - ISSUE_HAUT_X) + abs(pommeY - ISSUE_HAUT_Y);
 	passageDirectPomme = abs(lesX[0] - pommeX) + abs(lesY[0] - pommeY);
 
 	// compare les résultats pour obtenir le meilleur chemin
-	if (passageDirectPomme <= passageTrouHaut && passageDirectPomme <= passageTrouBas &&
-		passageDirectPomme <= passageTrouGauche && passageDirectPomme <= passageTrouDroit) // chemin direct vers la pomme sans passer dans un trou
+	// chemin direct vers la pomme sans passer dans un trou
+	if ( (passageDirectPomme <= passageTrouHaut) && (passageDirectPomme <= passageTrouBas) &&
+		(passageDirectPomme <= passageTrouGauche) && (passageDirectPomme <= passageTrouDroit) )
 	{
 		return CHEMIN_POMME;
 	}
-	else if (passageTrouHaut <= passageTrouBas && passageTrouHaut <= passageTrouGauche && passageTrouHaut <= passageTrouDroit) // chemin vers la pomme en passant par le trou du haut
+	// chemin vers la pomme en passant par le trou du haut
+	else if ( (passageTrouHaut <= passageTrouBas) && (passageTrouHaut <= passageTrouGauche) && 
+		(passageTrouHaut <= passageTrouDroit) ) 
 	{
 		return HAUT;
 	}
-	else if (passageTrouBas <= passageTrouGauche && passageTrouBas <= passageTrouDroit) // chemin vers la pomme en passant par le trou du bas
+	// chemin vers la pomme en passant par le trou du bas
+	else if ( (passageTrouBas <= passageTrouGauche) && (passageTrouBas <= passageTrouDroit) ) 
 	{
 		return BAS;
 	}
-	else if (passageTrouGauche <= passageTrouDroit) // chemin vers la pomme en passant par le trou de gauche
+	// chemin vers la pomme en passant par le trou de gauche
+	else if (passageTrouGauche <= passageTrouDroit) 
 	{
 		return GAUCHE;
 	}
@@ -420,16 +432,16 @@ bool verifierCollision(int lesX[], int lesY[], tPlateau plateau, char directionP
 	// Calcul de la nouvelle position en fonction de la direction donnée
 	switch (directionProchaine)
 	{
-	case HAUT:
+	case HAUT	:
 		nouvelleY--;
 		break;
-	case BAS:
+	case BAS	:
 		nouvelleY++;
 		break;
-	case GAUCHE:
+	case GAUCHE	:	
 		nouvelleX--;
 		break;
-	case DROITE:
+	case DROITE	:
 		nouvelleX++;
 		break;
 	}
@@ -441,9 +453,9 @@ bool verifierCollision(int lesX[], int lesY[], tPlateau plateau, char directionP
 	}
 
 	// Vérification des collisions avec le corps du serpent
-	for (int i = 0; i < TAILLE; i++)
+	for (int i = 0 ; i < TAILLE ; i++)
 	{
-		if (lesX[i] == nouvelleX && lesY[i] == nouvelleY)
+		if ( (lesX[i] == nouvelleX) && (lesY[i] == nouvelleY) )
 		{
 			return true; // Collision avec le corps du serpent
 		}
@@ -459,7 +471,7 @@ void progresser(int lesX[], int lesY[], char direction, tPlateau plateau, bool *
 	// collision avec une pomme ou avec une bordure
 	effacer(lesX[TAILLE - 1], lesY[TAILLE - 1]);
 
-	for (int i = TAILLE - 1; i > 0; i--)
+	for (int i = TAILLE - 1 ; i > 0 ; i--)
 	{
 		lesX[i] = lesX[i - 1];
 		lesY[i] = lesY[i - 1];
@@ -482,7 +494,7 @@ void progresser(int lesX[], int lesY[], char direction, tPlateau plateau, bool *
 	}
 
 	// Faire des trous dans les bordures
-	for (int i = 1; i < TAILLE; i++)
+	for (int i = 1 ; i < TAILLE ; i++)
 	{
 		if (lesX[0] <= 0)
 		{
