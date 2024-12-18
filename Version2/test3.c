@@ -1,4 +1,3 @@
-
 /**
  * @file version2.c
  * @brief automatisation d'un jeu snake créé lors de la SAE 1.01
@@ -27,6 +26,7 @@
 #include <termios.h>
 #include <fcntl.h>
 #include <time.h>
+#include <math.h>
 
 
 // taille du serpent
@@ -44,11 +44,11 @@
 // caractères pour représenter le serpent
 #define CORPS 'X'
 #define TETE 'O'
-/** // touches de direction ou d'arrêt du jeu
+// touches de direction ou d'arrêt du jeu
 #define HAUT 'z'
 #define BAS 's'
 #define GAUCHE 'q'
-#define DROITE 'd'*/
+#define DROITE 'd'
 #define STOP 'a'
 // caractères pour les éléments du plateau
 #define BORDURE '#'
@@ -56,11 +56,6 @@
 #define POMME '6'
 // nombre servant a la convertion du temps en seconde
 #define CONVERTION_SECONDE 1000
-// Déclaration des directions opposées
-#define GAUCHE 0
-#define DROITE 1
-#define HAUT 2
-#define BAS 3
 
 
 // définition d'un type pour le plateau : tPlateau
@@ -68,8 +63,8 @@
 // avec les coordonées à l'écran (qui commencent à 1), on ajoute 1 aux dimensions
 // et on neutralise la ligne 0 et la colonne 0 du tableau 2D (elles ne sont jamais
 // utilisées)
-int lesPommesX[NB_POMMES] = {75, 75, 78, 2, 8, 78, 74,  2, 72, 5};
-int lesPommesY[NB_POMMES] = { 8, 39,  2, 2, 5, 39, 33, 38, 35, 2};
+int xPomme[10] = {75, 75, 78, 2, 8, 78, 74,  2, 72, 5};
+int yPomme[10] = { 8, 39,  2, 2, 5, 39, 33, 38, 35, 2};
 typedef char tPlateau[LARGEUR_PLATEAU+1][HAUTEUR_PLATEAU+1];
 // compteur de pommes mangées
 int nbPommes = 0;
@@ -83,6 +78,8 @@ void afficher(int, int, char);
 void effacer(int x, int y);
 void dessinerSerpent(int lesX[], int lesY[]);
 void progresser(int lesX[], int lesY[], char direction, tPlateau plateau, bool * collision, bool * pomme);
+int distance(int x1, int y1, int x2, int y2);
+int calculerDist(int teteX, int teteY, int pommeX, int pommeY);
 void gotoxy(int x, int y);
 int kbhit();
 void disable_echo();
@@ -99,6 +96,7 @@ int main()
 
 	//direction courante du serpent (HAUT, BAS, GAUCHE ou DROITE)
 	char direction;
+	char directionTemp;
 
 	//représente la touche frappée par l'utilisateur
 	char touche;
@@ -135,50 +133,80 @@ int main()
 	// boucle de jeu. Arret si touche STOP, si collision avec une bordure ou
 	// si toutes les pommes sont mangées
 	do {
-        // Exemple de logique pour le demi-tour
-        if (nbPommes == 1) { // On s'intéresse à la 2ᵉ pomme (index 1)
-            if (lesX[0] == lesPommesX[1]) { // Pomme sur le même axe X
-                if (lesY[0] < lesPommesY[1] && direction != HAUT) {
-                    direction = BAS; // Demi-tour vers le bas
-                } else if (lesY[0] > lesPommesY[1] && direction != BAS) {
-                    direction = HAUT; // Demi-tour vers le haut
-                }
-            } else if (lesY[0] == lesPommesY[1]) { // Pomme sur le même axe Y
-                if (lesX[0] < lesPommesX[1] && direction != GAUCHE) {
-                    direction = DROITE; // Demi-tour vers la droite
-                } else if (lesX[0] > lesPommesX[1] && direction != DROITE) {
-                    direction = GAUCHE; // Demi-tour vers la gauche
-                }
-            }
-        }
+		// conditions de changements de direction du serpent
+		if (lesX[0] < xPomme[nbPommes]) {
+				direction = DROITE;
+		} else if (lesX[0] > xPomme[nbPommes]) {
+				direction = GAUCHE;
+		} else if (lesY[0] < yPomme[nbPommes]) {
+				direction = BAS;
+		} else if (lesY[0] > yPomme[nbPommes]) {
+				direction = HAUT;
+		}
 
-        // Mise à jour des coordonnées après changement de direction
-        switch (direction) {
-            case GAUCHE:
-                lesX[0]--; // Déplace à gauche
-                break;
-            case DROITE:
-                lesX[0]++; // Déplace à droite
-                break;
-            case HAUT:
-                lesY[0]--; // Déplace en haut
-                break;
-            case BAS:
-                lesY[0]++; // Déplace en bas
-                break;
-        }
+		// boucle permettant au serpent d'emprunter une issue
+		// si le chemin par celle ci est plus court
+		int distMin = 0;
+		distMin = calculerDist(lesX[0], lesY[0], xPomme[nbPommes], yPomme[nbPommes]);
+		if (distMin == 1){
+			if (lesY[0] == HAUTEUR_PLATEAU/2){
+				direction = GAUCHE;
+			}
+		} else if (distMin == 2){
+			if (lesY[0] == HAUTEUR_PLATEAU/2){
+				direction = DROITE;
+			}
+		} else if (distMin == 3){
+			if (lesX[0] == LARGEUR_PLATEAU/2){
+				direction = HAUT;
+			}
+		} else if (distMin == 4){
+			if (lesX[0] == LARGEUR_PLATEAU/2){
+				direction = BAS;
+			}
+		}
+		
 		progresser(lesX, lesY, direction, lePlateau, &collision, &pommeMangee);
+
 		if (pommeMangee)
 		{
             nbPommes++;
-			gagne = (nbPommes==NB_POMMES);
+			gagne = (nbPommes == NB_POMMES);
 			if (!gagne)
 			{
 				ajouterPomme(lePlateau);
 				pommeMangee = false;
-			}	
-			
+
+				if (lesX[0] == xPomme[nbPommes])
+				{
+					if ((direction == HAUT) || (direction == BAS))
+					{
+						directionTemp = direction;
+						if (xPomme[nbPommes] > 20)
+						{
+							direction = GAUCHE;
+							progresser(lesX, lesY, direction, lePlateau, &collision, &pommeMangee);
+							direction = (directionTemp = HAUT) ? BAS : HAUT;
+							for (int i = 0 ; i < TAILLE ; i++){
+								progresser(lesX, lesY, direction, lePlateau, &collision, &pommeMangee);
+							}
+						} else {
+							direction = DROITE;
+							progresser(lesX, lesY, direction, lePlateau, &collision, &pommeMangee);
+							for (int i = 0; i < TAILLE ; i++)
+							{
+								direction = (directionTemp = HAUT) ? BAS : HAUT;
+								progresser(lesX, lesY, direction, lePlateau, &collision, &pommeMangee);
+							}
+						}
+					}
+				} else if ((lesX[0] == 2) && (lesY[0] == 2)){
+					direction = (direction == GAUCHE)? BAS : DROITE;
+					progresser(lesX, lesY, direction, lePlateau, &collision, &pommeMangee);
+				} 
+			}
 		}
+
 		if (!gagne)
 		{
 			if (!collision)
@@ -211,7 +239,7 @@ int main()
 void initPlateau(tPlateau plateau)
 {
 	int i, j;
-	// initialisation du plateau avec des espaces
+
 	for (i = 1 ; i <= LARGEUR_PLATEAU ; i++)
 	{
 		for (int j=1 ; j <= HAUTEUR_PLATEAU ; j++)
@@ -219,19 +247,18 @@ void initPlateau(tPlateau plateau)
 			plateau[i][j] = VIDE;
 		}
 	}
-	// Mise en place la bordure autour du plateau
-	// première ligne
+	
 	for (i = 1 ; i <= LARGEUR_PLATEAU ; i++)
 	{
 		plateau[i][1] = BORDURE;
 	}
-	// lignes intermédiaires
+	
 	for (j = 1 ; j <= HAUTEUR_PLATEAU ; j++)
 	{
 			plateau[1][j] = BORDURE;
 			plateau[LARGEUR_PLATEAU][j] = BORDURE;
 		}
-	// dernière ligne
+	
 	for (i = 1; i <= LARGEUR_PLATEAU ; i++)
 	{
 		plateau[i][HAUTEUR_PLATEAU] = BORDURE;
@@ -243,13 +270,10 @@ void initPlateau(tPlateau plateau)
 
 }
 
-void dessinerPlateau(tPlateau plateau)
-{
-	int i, j;
-	// affiche à l'écran le contenu du tableau 2D représentant le plateau
-	for (i = 1 ; i <= LARGEUR_PLATEAU ; i++){
-		for (j = 1 ; j <= HAUTEUR_PLATEAU ; j++)
-		{
+void dessinerPlateau(tPlateau plateau){
+	// affiche eà l'écran le contenu du tableau 2D représentant le plateau
+	for (int i=1 ; i<=LARGEUR_PLATEAU ; i++){
+		for (int j=1 ; j<=HAUTEUR_PLATEAU ; j++){
 			afficher(i, j, plateau[i][j]);
 		}
 	}
@@ -260,8 +284,8 @@ void ajouterPomme(tPlateau plateau)
 	// génère aléatoirement la position d'une pomme,
 	// vérifie que ça correspond à une case vide
 	// du plateau puis l'ajoute au plateau et l'affiche
-	plateau[lesPommesX[nbPommes]][lesPommesY[nbPommes]] = POMME;
-	afficher(lesPommesX[nbPommes], lesPommesY[nbPommes], POMME);
+	plateau[xPomme[nbPommes]][yPomme[nbPommes]] = POMME;
+	afficher(xPomme[nbPommes], yPomme[nbPommes], POMME);
 }
 
 void afficher(int x, int y, char car)
@@ -281,12 +305,11 @@ void effacer(int x, int y)
 void dessinerSerpent(int lesX[], int lesY[])
 {
 	int i;
-	// affiche les anneaux puis la tête
+	afficher(lesX[0], lesY[0],TETE);
 	for(i = 1 ; i < TAILLE ; i++)
 	{
 		afficher(lesX[i], lesY[i], CORPS);
 	}
-	afficher(lesX[0], lesY[0],TETE);
 }
 
 void progresser(int lesX[], int lesY[], char direction, tPlateau plateau, bool * collision, bool * pomme)
@@ -306,16 +329,16 @@ void progresser(int lesX[], int lesY[], char direction, tPlateau plateau, bool *
 	switch(direction)
 	{
 		case HAUT	: 
-			lesY[0] = lesY[0] - 1;
+			lesY[0]--;
 			break;
 		case BAS	:
-			lesY[0] = lesY[0] + 1;
+			lesY[0]++;
 			break;
 		case DROITE	:
-			lesX[0] = lesX[0] + 1;
+			lesX[0]++;
 			break;
 		case GAUCHE	:
-			lesX[0] = lesX[0] - 1;
+			lesX[0]--;
 			break;
 	}
 	*pomme = false;
@@ -332,12 +355,18 @@ void progresser(int lesX[], int lesY[], char direction, tPlateau plateau, bool *
 		*collision = true;
 	}
 
-	if (lesX[0] == 0 && lesY[0] == HAUTEUR_PLATEAU / 2) lesX[0] = LARGEUR_PLATEAU - 2;
-    else if (lesX[0] == LARGEUR_PLATEAU - 1 && lesY[0] == HAUTEUR_PLATEAU / 2) lesX[0] = 1;
-    else if (lesY[0] == 0 && lesX[0] == LARGEUR_PLATEAU / 2) lesY[0] = HAUTEUR_PLATEAU - 2;
-    else if (lesY[0] == HAUTEUR_PLATEAU - 1 && lesX[0] == LARGEUR_PLATEAU / 2) lesY[0] = 1;
+	if (lesX[0] == 0 && lesY[0] == HAUTEUR_PLATEAU / 2) 
+	{
+		lesX[0] = LARGEUR_PLATEAU - 2;
+	} else if (lesX[0] == LARGEUR_PLATEAU - 1 && lesY[0] == HAUTEUR_PLATEAU / 2){
+		lesX[0] = 1;
+	} else if (lesY[0] == 0 && lesX[0] == LARGEUR_PLATEAU / 2) {
+		lesY[0] = HAUTEUR_PLATEAU - 2;
+	} else if (lesY[0] == HAUTEUR_PLATEAU && lesX[0] == LARGEUR_PLATEAU / 2){
+		lesY[0] = 2;
+	}
 
-	    // Vérification des collisions avec le corps du serpent
+	// Vérification des collisions avec le corps du serpent
     for (int i = 1; i < TAILLE; i++) {
         if ((lesX[0] == lesX[i]) && (lesY[0] == lesY[i])) {
             *collision = true;
@@ -348,7 +377,41 @@ void progresser(int lesX[], int lesY[], char direction, tPlateau plateau, bool *
 	nbDepUnitaires++;
 }
 
+int distance(int x1, int y1, int x2, int y2) {
+    return abs(x1 - x2) + abs(y1 - y2);
+}
 
+int calculerDist(int teteX, int teteY, int pommeX, int pommeY) {
+	int tabDistance[5] = {0, 0, 0, 0, 0};
+    int distDirecte = distance(teteX, teteY, pommeX, pommeY);
+	tabDistance[0] = distDirecte;
+    
+    int distGauche = distance(1, HAUTEUR_PLATEAU / 2, teteX, teteY) 
+                         + distance(LARGEUR_PLATEAU - 1, HAUTEUR_PLATEAU / 2, pommeX, pommeY);
+	tabDistance[1] = distGauche;
+    int distDroite = distance(LARGEUR_PLATEAU - 1, HAUTEUR_PLATEAU / 2, teteX, teteY) 
+                         + distance(1, HAUTEUR_PLATEAU / 2, pommeX, pommeY);
+	tabDistance[2] = distDroite;
+    int distHaut = distance(LARGEUR_PLATEAU / 2, 1, teteX, teteY)
+                    + distance(LARGEUR_PLATEAU / 2, HAUTEUR_PLATEAU - 1, pommeX, pommeY); 
+	tabDistance[3] = distHaut;
+    int distBas = distance(LARGEUR_PLATEAU / 2, HAUTEUR_PLATEAU - 1, teteX, teteY)
+                    + distance(LARGEUR_PLATEAU / 2, 1, pommeX, pommeY);
+	tabDistance[4] = distBas;
+
+	int distMin = 0;
+	int min = tabDistance[0];
+    for (int i = 0 ; i < 5 ; i++)
+	{
+		if (min > tabDistance[i])
+		{
+			min = tabDistance[i];
+			distMin = i;
+		}
+	}
+
+    return distMin;
+}
 
 /************************************************/
 /*				 FONCTIONS UTILITAIRES 			*/

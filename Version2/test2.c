@@ -27,7 +27,6 @@
 #include <fcntl.h>
 #include <time.h>
 
-
 // taille du serpent
 #define TAILLE 10
 // dimensions du plateau
@@ -39,7 +38,7 @@
 // nombre de pommes à manger pour gagner
 #define NB_POMMES 10
 // temporisation entre deux déplacements du serpent (en microsecondes)
-#define ATTENTE 200000
+#define ATTENTE 20000
 // caractères pour représenter le serpent
 #define CORPS 'X'
 #define TETE 'O'
@@ -93,6 +92,7 @@ int main()
 
 	//direction courante du serpent (HAUT, BAS, GAUCHE ou DROITE)
 	char direction;
+	char directionTemp;
 
 	//représente la touche frappée par l'utilisateur
 	char touche;
@@ -130,33 +130,52 @@ int main()
 	// si toutes les pommes sont mangées
 	do {
 		if (lesX[0] < lesPommesX[nbPommes]) {
-			if (direction != GAUCHE) {
 				direction = DROITE;
-			}
 		} else if (lesX[0] > lesPommesX[nbPommes]) {
-			if (direction != DROITE) {
 				direction = GAUCHE;
-			}
 		} else if (lesY[0] < lesPommesY[nbPommes]) {
-			if (direction != HAUT) {
 				direction = BAS;
-			}
 		} else if (lesY[0] > lesPommesY[nbPommes]) {
-			if (direction != BAS) {
 				direction = HAUT;
-			}
 		}
 		progresser(lesX, lesY, direction, lePlateau, &collision, &pommeMangee);
 		if (pommeMangee)
 		{
             nbPommes++;
-			gagne = (nbPommes==NB_POMMES);
+			gagne = (nbPommes == NB_POMMES);
 			if (!gagne)
 			{
 				ajouterPomme(lePlateau);
 				pommeMangee = false;
-			}	
-			
+
+				if (lesX[0] == lesPommesX[nbPommes])
+				{
+					if ((direction == HAUT) || (direction == BAS))
+					{
+						directionTemp = direction;
+						if (lesPommesX[nbPommes] > 20)
+						{
+							direction = GAUCHE;
+							progresser(lesX, lesY, direction, lePlateau, &collision, &pommeMangee);
+							direction = (directionTemp = HAUT) ? BAS : HAUT;
+							for (int i = 0 ; i < TAILLE ; i++){
+								progresser(lesX, lesY, direction, lePlateau, &collision, &pommeMangee);
+							}
+						} else {
+							direction = DROITE;
+							progresser(lesX, lesY, direction, lePlateau, &collision, &pommeMangee);
+							for (int i = 0; i < TAILLE ; i++)
+							{
+								direction = (directionTemp = HAUT) ? BAS : HAUT;
+								progresser(lesX, lesY, direction, lePlateau, &collision, &pommeMangee);
+							}
+						}
+					}
+				} else if ((lesX[0] == 2) && (lesY[0] == 2)){
+					direction = (direction == GAUCHE)? BAS : DROITE;
+					progresser(lesX, lesY, direction, lePlateau, &collision, &pommeMangee);
+				}
+			}
 		}
 		if (!gagne)
 		{
@@ -316,7 +335,7 @@ void progresser(int lesX[], int lesY[], char direction, tPlateau plateau, bool *
     else if (lesY[0] == 0 && lesX[0] == LARGEUR_PLATEAU / 2) lesY[0] = HAUTEUR_PLATEAU - 2;
     else if (lesY[0] == HAUTEUR_PLATEAU - 1 && lesX[0] == LARGEUR_PLATEAU / 2) lesY[0] = 1;
 
-	    // Vérification des collisions avec le corps du serpent
+	// Vérification des collisions avec le corps du serpent
     for (int i = 1; i < TAILLE; i++) {
         if ((lesX[0] == lesX[i]) && (lesY[0] == lesY[i])) {
             *collision = true;
