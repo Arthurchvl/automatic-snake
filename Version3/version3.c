@@ -2,7 +2,7 @@
  * @file version1.c
  * @brief Automatisation d'un jeu snake codé en C lors de la SAE 1.01
  * @author Chauvel Arthur, Le Chevère Yannis
- * @version 2.0
+ * @version 3.0
  * @date 14/12/2024
  *
  * Automatisation d'un jeu snake pour qu'il se déplace automatiquement.
@@ -14,6 +14,7 @@
  * et les collisions entre la tête et le corps du serpent sont activées aussi.
  * Des issues sont crées dans le plateau au milieu de chaque bordure,
  * si le seprent emprunte une de ces issues, il se téléporte à celle opposée.
+ * Des pavés sont placés à des coordonnées bien précises, leur taille données en constantes,
  * En cas de victoire, le nombre de déplacements unitaire réalisé par le serpent
  * et le temps CPU réalisé par le programme sont affichés.
  */
@@ -39,8 +40,11 @@
 #define Y_INITIAL 20
 // nombre de pommes à manger pour gagner
 #define NB_POMMES 10
+// caractéristiques constantes des pavés (nombre et taille)
+#define NB_PAVES 6
+#define TAILLE_PAVES 5
 // temporisation entre deux déplacements du serpent (en microsecondes)
-#define ATTENTE 200000
+#define ATTENTE 20000
 // caractères pour représenter le serpent
 #define CORPS 'X'
 #define TETE 'O'
@@ -65,22 +69,27 @@
 #define ISSUE_DROITE_X 80
 #define ISSUE_DROITE_Y 20
 
+// définition des positions X et Y des pommes dans un tableau
+// et des positions des coins supérieurs gauches des pavés dans un tableau
+int lesPommesX[NB_POMMES] = {75, 75, 78, 2, 8, 78, 74, 2, 72, 5};
+int lesPommesY[NB_POMMES] = { 8, 39, 2, 2, 5, 39, 33, 38, 35, 2};
+int lesPavesX[NB_PAVES] = { 3, 74, 3, 74, 38, 38};
+int lesPavesY[NB_PAVES] = {3, 3, 34, 34, 21, 15 };
 
-// définition d'un type pour le plateau : tPlateau
+// définition d'un type pour le plateau
 // Attention, pour que les indices du tableau 2D (qui commencent à 0) coincident
 // avec les coordonées à l'écran (qui commencent à 1), on ajoute 1 aux dimensions
 // et on neutralise la ligne 0 et la colonne 0 du tableau 2D (elles ne sont jamais
 // utilisées)
-int lesPommesX[10] = {75, 75, 78, 2, 8, 78, 74,  2, 72, 5};
-int lesPommesY[10] = { 8, 39,  2, 2, 5, 39, 33, 38, 35, 2};
 typedef char tPlateau[LARGEUR_PLATEAU + 1][HAUTEUR_PLATEAU + 1];
 
 int nbPommes = 0;
 
-/* Déclaration des fonctions et procédures (les prototypes) */
-void initPlateau(tPlateau plateau);
+/* Déclaration des fonctions et procédures*/
+void initPlateau(tPlateau plateau, int lesX[], int lesY[]);
 void dessinerPlateau(tPlateau plateau);
 void ajouterPomme(tPlateau plateau, int iPomme);
+void placerPaves(tPlateau plateau);
 void afficher(int, int, char);
 void effacer(int x, int y);
 void dessinerSerpent(int lesX[], int lesY[]);
@@ -129,7 +138,7 @@ int main()
 	}
 
 	// mise en place du plateau
-	initPlateau(lePlateau);
+	initPlateau(lePlateau, lesX, lesY);
 	system("clear");
 	dessinerPlateau(lePlateau);
 
@@ -244,7 +253,7 @@ int main()
 /************************************************/
 /*		FONCTIONS ET PROCEDURES DU JEU 			*/
 /************************************************/
-void initPlateau(tPlateau plateau)
+void initPlateau(tPlateau plateau, int lesX[], int lesY[])
 {
 	// initialisation du plateau avec des espaces
 	for (int i = 1 ; i <= LARGEUR_PLATEAU ; i++)
@@ -275,12 +284,27 @@ void initPlateau(tPlateau plateau)
 		plateau[i][HAUTEUR_PLATEAU] = BORDURE;
 		plateau[LARGEUR_PLATEAU / 2][HAUTEUR_PLATEAU] = VIDE; // trou du bas
 	}
+	//  place les pavés sur le plateau
+    placerPaves(plateau);
+}
+
+void placerPaves(tPlateau plateau) {
+    for (int i = 0; i < NB_PAVES; i++) {
+        for (int x = lesPavesX[i]; x < lesPavesX[i] + TAILLE_PAVES; x++) {
+            for (int y = lesPavesY[i]; y < lesPavesY[i] + TAILLE_PAVES; y++) {
+                // Vérifier si x et y sont dans les limites du plateau
+                if (x >= 1 && x <= LARGEUR_PLATEAU && y >= 1 && y <= HAUTEUR_PLATEAU) {
+                    plateau[x][y] = BORDURE;
+                }
+            }
+        }
+    }
 }
 
 void dessinerPlateau(tPlateau plateau)
 {
 	int i, j;
-	// affiche eà l'écran le contenu du tableau 2D représentant le plateau
+	// affiche à l'écran le contenu du tableau 2D représentant le plateau
 	for (i = 1 ; i <= LARGEUR_PLATEAU ; i++)
 	{
 		for (j = 1 ; j <= HAUTEUR_PLATEAU ; j++)

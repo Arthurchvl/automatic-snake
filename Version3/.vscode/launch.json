@@ -1,0 +1,13 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "C/C++ Runner: Debug Session",
+      "type": "lldb",
+      "request": "launch",
+      "args": [],
+      "cwd": "/Users/arthurchauvel/Desktop/cours/SAES/S102/Version3",
+      "program": "/Users/arthurchauvel/Desktop/cours/SAES/S102/Version3/build/Debug/outDebug"
+    }
+  ]
+}
