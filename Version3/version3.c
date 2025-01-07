@@ -5,7 +5,6 @@
  * @version 3.0
  * @date 14/12/2024
  *
- * Automatisation d'un jeu snake pour qu'il se déplace automatiquement.
  * Cette version initialise le plateau de jeu avec les dimensions données en constantes,
  * elle initialise le serpent à la position donnée en constante,
  * elle permet également de manger des pommes dont les positions sont fixes.
@@ -141,7 +140,6 @@ int main()
 	initPlateau(lePlateau, lesX, lesY);
 	system("clear");
 	dessinerPlateau(lePlateau);
-
 	srand(time(NULL));
 	ajouterPomme(lePlateau, nbPommes);
 
@@ -207,6 +205,7 @@ int main()
 			directionSerpent(lesX, lesY, lePlateau, &direction, lesPommesX[nbPommes], lesPommesY[nbPommes]);
 		}
 
+		// deplacement du serpent à chaque fois et incrémentation du compteur de déplacements
 		progresser(lesX, lesY, direction, lePlateau, &collision, &pommeMangee, &utiliserIssue);
 		deplacements++;
 
@@ -214,12 +213,14 @@ int main()
 		if (pommeMangee)
 		{
 			nbPommes++;
-			gagne = (nbPommes == NB_POMMES);
-			utiliserIssue = false; // remet en false pour pouvoir se retéléporter après avoir manger une pomme
+			if (nbPommes == NB_POMMES) {
+				gagne = true;
+				utiliserIssue = false;
+			}
 			if (!gagne)
 			{
 				ajouterPomme(lePlateau, nbPommes);
-				// recalcul la meilleur position après l'apparition d'une nouvelle pomme
+				// recalcul la meilleure position après l'apparition d'une nouvelle pomme
 				meilleurDistance = calculDistance(lesX, lesY, lesPommesX[nbPommes], lesPommesY[nbPommes]); 
 				pommeMangee = false;
 			}
@@ -250,9 +251,9 @@ int main()
 }
 
 
-/************************************************/
-/*		FONCTIONS ET PROCEDURES DU JEU 			*/
-/************************************************/
+/************************************************
+		FONCTIONS ET PROCEDURES DU CODE 	    
+*************************************************/
 void initPlateau(tPlateau plateau, int lesX[], int lesY[])
 {
 	// initialisation du plateau avec des espaces
@@ -560,9 +561,9 @@ void progresser(int lesX[], int lesY[], char direction, tPlateau plateau, bool *
 
 
 
-/************************************************/
-/*				 FONCTIONS UTILITAIRES 			*/
-/************************************************/
+/************************************************
+				 FONCTIONS UTILITAIRES 			
+*************************************************/
 void gotoxy(int x, int y)
 { 
     printf("\033[%d;%df", y, x);
