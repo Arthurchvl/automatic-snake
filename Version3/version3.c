@@ -14,7 +14,7 @@
  * Des issues sont créées dans le plateau au milieu de chaque bordure,
  * si le serpent emprunte une de ces issues, il se téléporte à celle opposée.
  * Des pavés sont placés à des coordonnées bien précises, leur taille est donnée en constantes,
- * En cas de victoire, le nombre de déplacements unitaire réalisé par le serpent
+ * En cas de victoire, le nombre de déplacements unitaires réalisé par le serpent
  * et le temps CPU réalisé par le programme sont affichés.
  */
 
@@ -43,7 +43,7 @@
 #define NB_PAVES 6
 #define TAILLE_PAVES 5
 // temporisation entre deux déplacements du serpent, 200 000 microseconces
-#define ATTENTE 20000
+#define TEMPORISATION 200000
 // caractères pour représenter le serpent
 #define CORPS 'X'
 #define TETE 'O'
@@ -229,7 +229,7 @@ int main()
 		{
 			if (!collision)
 			{
-				usleep(ATTENTE);
+				usleep(TEMPORISATION);
 				if (kbhit() == 1)
 				{
 					touche = getchar();
