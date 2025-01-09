@@ -1,6 +1,6 @@
 /**
  * @file version3.c
- * @brief Automatisation d'un jeu snake codé en C lors de la SAE 1.01
+ * @brief Automatisation d'un jeu snake codé en C lors de la SAE 1.02
  * @author Chauvel Arthur, Le Chevère Yannis
  * @version 3.0
  * @date 14/12/2024
