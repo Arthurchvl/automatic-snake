@@ -111,9 +111,6 @@ void enable_echo();
 
 int main()
 {
-	// départ du calcul du temps CPU
-	clock_t debut = clock();
-
 	// Total des déplacements
 	int deplacements1 = 0;
 	int deplacements2 = 0;
@@ -134,10 +131,12 @@ int main()
 	// le plateau de jeu
 	tPlateau lePlateau;
 
-	bool collision = false;
+	bool collision1 = false;
+	bool collision2 = false;
 	bool gagne = false;
 	bool pommeMangee = false;
-	bool utiliserIssue = false;
+	bool utiliserIssue1 = false;
+	bool utiliserIssue2 = false;
 
 	// initialisation de la position du serpent 1: positionnement de la
 	// tête en (X_INITIAL, Y_INITIAL_SERPENT_1), puis des anneaux à sa gauche
@@ -179,7 +178,7 @@ int main()
 		// choisis la direction en fonction de la meilleur distance
 		if (meilleurDistance1 == HAUT) // se dirige vers le trou du haut puis quand il s'est téléporter avance vers la pomme
 		{
-			if (utiliserIssue)
+			if (utiliserIssue1)
 			{
 				directionSerpent1(lesX1, lesY1, lePlateau, &direction1, lesPommesX[(nbPommes1+nbPommes2)], lesPommesY[(nbPommes1+nbPommes2)]);
 			}
@@ -190,7 +189,7 @@ int main()
 		}
 		else if (meilleurDistance1 == BAS) // se dirige vers le trou du bas puis quand il s'est téléporter avance vers la pomme
 		{
-			if (utiliserIssue)
+			if (utiliserIssue1)
 			{
 				directionSerpent1(lesX1, lesY1, lePlateau, &direction1, lesPommesX[(nbPommes1+nbPommes2)], lesPommesY[(nbPommes1+nbPommes2)]);
 			}
@@ -201,7 +200,7 @@ int main()
 		}
 		else if (meilleurDistance1 == GAUCHE) // se dirige vers le trou de gauche puis quand il s'est téléporter avance vers la pomme
 		{
-			if (utiliserIssue)
+			if (utiliserIssue1)
 			{
 				directionSerpent1(lesX1, lesY1, lePlateau, &direction1, lesPommesX[(nbPommes1+nbPommes2)], lesPommesY[(nbPommes1+nbPommes2)]);
 			}
@@ -212,7 +211,7 @@ int main()
 		}
 		else if (meilleurDistance1 == DROITE) // se dirige vers le trou de droite puis quand il s'est téléporter avance vers la pomme
 		{
-			if (utiliserIssue)
+			if (utiliserIssue1)
 			{
 				directionSerpent1(lesX1, lesY1, lePlateau, &direction1, lesPommesX[(nbPommes1+nbPommes2)], lesPommesY[(nbPommes1+nbPommes2)]);
 			}
@@ -227,7 +226,7 @@ int main()
 		}
 
 		// deplacement du serpent à chaque fois et incrémentation du compteur de déplacements
-		progresser1(lesX1, lesY1, direction1, lePlateau, &collision, &pommeMangee, &utiliserIssue);
+		progresser1(lesX1, lesY1, direction1, lePlateau, &collision1, &pommeMangee, &utiliserIssue1);
 		deplacements1++;
 
 		// Ajoute une pomme au compteur de pomme quand elle est mangée et arrete le jeu si score atteint 10
@@ -236,7 +235,7 @@ int main()
 			nbPommes1++;
 			if ((nbPommes1+nbPommes2) == NB_POMMES) {
 				gagne = true;
-				utiliserIssue = false;
+				utiliserIssue1 = false;
 			}
 			if (!gagne)
 			{
@@ -248,7 +247,7 @@ int main()
 		}
 		if (!gagne)
 		{
-			if (!collision)
+			if (!collision1)
 			{
 				usleep(ATTENTE);
 				if (kbhit() == 1)
@@ -257,7 +256,7 @@ int main()
 				}
 			}
 		}
-	} while (touche != STOP && !collision && !gagne); 
+	} while (touche != STOP && !collision1 && !gagne); 
 
 	// boucle de jeu du serpent 2. Arret si touche STOP, si collision avec une bordure ou
 	// si toutes les pommes sont mangées
@@ -266,7 +265,7 @@ int main()
 		// choisis la direction en fonction de la meilleur distance
 		if (meilleurDistance2 == HAUT) // se dirige vers le trou du haut puis quand il s'est téléporter avance vers la pomme
 		{
-			if (utiliserIssue)
+			if (utiliserIssue2)
 			{
 				directionSerpent2(lesX2, lesY2, lePlateau, &direction2, lesPommesX[(nbPommes1+nbPommes2)], lesPommesY[(nbPommes1+nbPommes2)]);
 			}
@@ -277,7 +276,7 @@ int main()
 		}
 		else if (meilleurDistance2 == BAS) // se dirige vers le trou du bas puis quand il s'est téléporter avance vers la pomme
 		{
-			if (utiliserIssue)
+			if (utiliserIssue2)
 			{
 				directionSerpent2(lesX2, lesY2, lePlateau, &direction2, lesPommesX[(nbPommes1+nbPommes2)], lesPommesY[(nbPommes1+nbPommes2)]);
 			}
@@ -288,7 +287,7 @@ int main()
 		}
 		else if (meilleurDistance2 == GAUCHE) // se dirige vers le trou de gauche puis quand il s'est téléporter avance vers la pomme
 		{
-			if (utiliserIssue)
+			if (utiliserIssue2)
 			{
 				directionSerpent2(lesX2, lesY2, lePlateau, &direction2, lesPommesX[(nbPommes1+nbPommes2)], lesPommesY[(nbPommes1+nbPommes2)]);
 			}
@@ -299,7 +298,7 @@ int main()
 		}
 		else if (meilleurDistance2 == DROITE) // se dirige vers le trou de droite puis quand il s'est téléporter avance vers la pomme
 		{
-			if (utiliserIssue)
+			if (utiliserIssue2)
 			{
 				directionSerpent2(lesX2, lesY2, lePlateau, &direction2, lesPommesX[(nbPommes1+nbPommes2)], lesPommesY[(nbPommes1+nbPommes2)]);
 			}
@@ -314,7 +313,7 @@ int main()
 		}
 
 		// deplacement du serpent à chaque fois et incrémentation du compteur de déplacements
-		progresser2(lesX2, lesY2, direction2, lePlateau, &collision, &pommeMangee, &utiliserIssue);
+		progresser2(lesX2, lesY2, direction2, lePlateau, &collision2, &pommeMangee, &utiliserIssue2);
 		deplacements2++;
 
 		// Ajoute une pomme au compteur de pomme quand elle est mangée et arrete le jeu si score atteint 10
@@ -323,7 +322,7 @@ int main()
 			nbPommes2++;
 			if ((nbPommes1 + nbPommes2) == NB_POMMES) {
 				gagne = true;
-				utiliserIssue = false;
+				utiliserIssue2 = false;
 			}
 			if (!gagne)
 			{
@@ -335,7 +334,7 @@ int main()
 		}
 		if (!gagne)
 		{
-			if (!collision)
+			if (!collision2)
 			{
 				usleep(ATTENTE);
 				if (kbhit() == 1)
@@ -344,17 +343,13 @@ int main()
 				}
 			}
 		}
-	} while (touche != STOP && !collision && !gagne);
+	} while (touche != STOP && !collision2 && !gagne);
 	enable_echo();
 	gotoxy(1, HAUTEUR_PLATEAU + 1);
 
-	clock_t fin = clock(); // fin du calcul du temps CPU
-	double tpsCPU = ((fin - debut) * 1.0) / CLOCKS_PER_SEC;
-
 	// afficher les performances du programme
-	printf("Le temps CPU est de %.3f secondes.\n", tpsCPU);
-	printf("Le serpent 1 s'est déplacé %d fois.\n", deplacements1);
-	printf("Le serpent 2 s'est déplacé %d fois.\n", deplacements2);
+	printf("Serpent 1 : %d déplacements et %d pommes mangées", deplacements1, nbPommes1);
+	printf("Serpent 2 : %d déplacements et %d pommes mangées", deplacements2, nbPommes2);
 
 	return EXIT_SUCCESS;
 }
