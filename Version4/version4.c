@@ -97,16 +97,17 @@ void ajouterPomme(tPlateau plateau, int iPomme);
 void placerPaves(tPlateau plateau);
 void afficher(int, int, char);
 void effacer(int x, int y);
-// Fonctions relatives aux serpents donc en double
+// Fonctions relatives au serpent 1
 void dessinerSerpent1(int lesX1[], int lesY1[]);
-void dessinerSerpent2(int lesX2[], int lesY2[]);
 void directionSerpent1(int lesX1[], int lesY1[], tPlateau plateau, char *direction1, int objectifX, int objectifY);
-void directionSerpent2(int lesX2[], int lesY2[], tPlateau plateau, char *direction2, int objectifX, int objectifY);
 bool verifierCollisionProchainDeplacement1(int lesX1[], int lesY1[], tPlateau plateau, char prochaineDirection1);
-bool verifierCollisionProchainDeplacement2(int lesX2[], int lesY2[], tPlateau plateau, char prochaineDirection2);
 int calculDistance1(int lesX1[], int lesY1[], int pommeX, int pommeY);
-int calculDistance2(int lesX2[], int lesY2[], int pommeX, int pommeY);
 void progresser1(int lesX1[], int lesY1[], char direction1, tPlateau plateau, bool *collision1, bool *pommeMangee1, bool *utiliserIssue1);
+// Fonctions relatives au serpent 2
+void dessinerSerpent2(int lesX2[], int lesY2[]);
+void directionSerpent2(int lesX2[], int lesY2[], tPlateau plateau, char *direction2, int objectifX, int objectifY);
+bool verifierCollisionProchainDeplacement2(int lesX2[], int lesY2[], tPlateau plateau, char prochaineDirection2);
+int calculDistance2(int lesX2[], int lesY2[], int pommeX, int pommeY);
 void progresser2(int lesX2[], int lesY2[], char direction2, tPlateau plateau, bool *collision2, bool *pommeMangee2, bool *utiliserIssue2);
 // Fonctions boites noires
 void gotoxy(int x, int y);
@@ -114,29 +115,30 @@ int kbhit();
 void disable_echo();
 void enable_echo();
 
-
+// Main du programme
 int main()
 {
-	// Total des déplacements
+	// Total des déplacements des 2 serpents
 	int deplacements1 = 0;
 	int deplacements2 = 0;
 
-	// 2 tableaux contenant les positions des éléments qui constituent le serpent
+	// tableaux contentant les coordonnées X et Y des éléments des 2 serpents
 	int lesX1[TAILLE];
 	int lesY1[TAILLE];
 	int lesX2[TAILLE];
 	int lesY2[TAILLE];
 
-	// représente la touche frappée par l'utilisateur : touche de direction ou pour l'arrêt
+	// représente la touche frappée par l'utilisateur attend la possible entrée de la touche arrêt
 	char touche;
 
-	// direction courante du serpent (HAUT, BAS, GAUCHE ou DROITE)
+	// direction courante des serpents (HAUT, BAS, GAUCHE ou DROITE)
 	char direction1;
 	char direction2;
 
 	// le plateau de jeu
 	tPlateau lePlateau;
 
+	//variables utiles aux interactions des serpents avec le pateau
 	bool collision1 = false;
 	bool collision2 = false;
 	bool gagne = false;
@@ -167,7 +169,8 @@ int main()
 	srand(time(NULL));
 	ajouterPomme(lePlateau, (nbPommes1+nbPommes2));
 
-	// initialisation : le serpent se dirige vers la DROITE
+	// initialisation : le serpent 1 se dirige vers la DROITE
+	// initialisation : le serpent 2 se dirige vers la GAUCHE
 	dessinerSerpent1(lesX1, lesY1);
 	dessinerSerpent2(lesX2, lesY2);
 	disable_echo();
