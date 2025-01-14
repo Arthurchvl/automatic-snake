@@ -6,16 +6,17 @@
  * @date 09/01/2025
  *
  * Cette version initialise le plateau de jeu avec les dimensions données en constantes,
- * elle initialise le serpent à la position donnée en constante,
+ * elle initialise deux serpent à la position donnée en constante,
  * elle permet également de manger des pommes dont les positions sont fixes.
  * La touche d'arrêt du jeu est fonctionnelle et la condition de victoire aussi.
  * Les conditions avec les bordures sont activées
  * et les collisions entre la tête et le corps du serpent sont activées aussi.
  * Des issues sont créées dans le plateau au milieu de chaque bordure,
- * si le serpent emprunte une de ces issues, il se téléporte à celle opposée.
- * Des pavés sont placés à des coordonnées bien précises, leur taille est donnée en constantes,
- * En cas de victoire, le nombre de déplacements unitaire réalisé par le serpent
- * et le temps CPU réalisé par le programme sont affichés.
+ * si les serpents emprunte une de ces issues, il se téléporte à celle opposée.
+ * Des pavés sont placés à des coordonnées bien précises, leur taille est donnée en constantes.
+ * Le serpent qui gagne est le serpent qui a manger les 10 pomme le plus rapidement.
+ * En cas de victoire, le nombre de déplacements unitaire réalisé par chacun des serpents est afficher.
+ *
  */
 
 
@@ -459,16 +460,7 @@ void dessinerSerpent1(int lesX[], int lesY[])
 	afficher(lesX[0], lesY[0], TETE_SERPENT_1);
 }
 
-void dessinerSerpent2(int lesX[], int lesY[])
-{
-	int i;
-	// affiche les anneaux puis la tête
-	for(i = 1 ; i < TAILLE ; i++)
-	{
-		afficher(lesX[i], lesY[i], CORPS);
-	}
-	afficher(lesX[0], lesY[0], TETE_SERPENT_2);
-}
+
 
 void directionSerpent1(int lesX[], int lesY[], tPlateau plateau, char *direction, int x, int y)
 {
@@ -519,54 +511,7 @@ void directionSerpent1(int lesX[], int lesY[], tPlateau plateau, char *direction
 	}
 }
 
-void directionSerpent2(int lesX[], int lesY[], tPlateau plateau, char *direction, int x, int y)
-{
-	// Calcul des directions possibles
-	int differenceX = x - lesX[0]; // Différence en X
-	int differenceY = y - lesY[0]; // Différence en Y
 
-	// Essayer de se déplacer dans la direction verticale
-	if (differenceY != 0)
-	{
-		*direction = (differenceY > 0) ? BAS : HAUT;
-		if (verifierCollisionProchainDeplacement(lesX, lesY, plateau, *direction))
-		{
-			// Si collision, essayer la direction horizontale
-			*direction = (differenceX > 0) ? DROITE : GAUCHE;
-			if (verifierCollisionProchainDeplacement(lesX, lesY, plateau, *direction))
-			{
-				// Si collision, essayer l'autre direction horizontale
-				*direction = (differenceX > 0) ? GAUCHE : DROITE;
-				if (verifierCollisionProchainDeplacement(lesX, lesY, plateau, *direction))
-				{
-					// Si collision, essayer l'autre direction verticale
-					*direction = (differenceY > 0) ? HAUT : BAS;
-				}
-			}
-		}
-	}
-	
-	// Si pas de déplacement horizontal possible, essayer horizontale
-	else if (differenceX != 0)
-	{
-		*direction = (differenceX > 0) ? DROITE : GAUCHE;
-		if (verifierCollisionProchainDeplacement(lesX, lesY, plateau, *direction))
-		{
-			// Si collision, essayer la direction verticale
-			*direction = (differenceY > 0) ? BAS : HAUT;
-			if (verifierCollisionProchainDeplacement(lesX, lesY, plateau, *direction))
-			{
-				// Si collision, essayer l'autre direction verticale
-				*direction = (differenceY > 0) ? HAUT : BAS;
-				if (verifierCollisionProchainDeplacement(lesX, lesY, plateau, *direction))
-				{
-					// Si collision, essayer l'autre direction horizontale
-					*direction = (differenceX > 0) ? GAUCHE : DROITE;
-				}
-			}
-		}
-	}
-}
 
 int calculDistance(int lesX[], int lesY[], int pommeX, int pommeY)
 {
@@ -721,6 +666,66 @@ void progresser1(int lesX[], int lesY[], char direction, tPlateau plateau, bool 
 		*collision = true;
 	}
 	dessinerSerpent1(lesX, lesY);
+}
+
+void dessinerSerpent2(int lesX[], int lesY[])
+{
+	int i;
+	// affiche les anneaux puis la tête
+	for(i = 1 ; i < TAILLE ; i++)
+	{
+		afficher(lesX[i], lesY[i], CORPS);
+	}
+	afficher(lesX[0], lesY[0], TETE_SERPENT_2);
+}
+
+void directionSerpent2(int lesX[], int lesY[], tPlateau plateau, char *direction, int x, int y)
+{
+	// Calcul des directions possibles
+	int differenceX = x - lesX[0]; // Différence en X
+	int differenceY = y - lesY[0]; // Différence en Y
+
+	// Essayer de se déplacer dans la direction verticale
+	if (differenceY != 0)
+	{
+		*direction = (differenceY > 0) ? BAS : HAUT;
+		if (verifierCollisionProchainDeplacement(lesX, lesY, plateau, *direction))
+		{
+			// Si collision, essayer la direction horizontale
+			*direction = (differenceX > 0) ? DROITE : GAUCHE;
+			if (verifierCollisionProchainDeplacement(lesX, lesY, plateau, *direction))
+			{
+				// Si collision, essayer l'autre direction horizontale
+				*direction = (differenceX > 0) ? GAUCHE : DROITE;
+				if (verifierCollisionProchainDeplacement(lesX, lesY, plateau, *direction))
+				{
+					// Si collision, essayer l'autre direction verticale
+					*direction = (differenceY > 0) ? HAUT : BAS;
+				}
+			}
+		}
+	}
+	
+	// Si pas de déplacement horizontal possible, essayer horizontale
+	else if (differenceX != 0)
+	{
+		*direction = (differenceX > 0) ? DROITE : GAUCHE;
+		if (verifierCollisionProchainDeplacement(lesX, lesY, plateau, *direction))
+		{
+			// Si collision, essayer la direction verticale
+			*direction = (differenceY > 0) ? BAS : HAUT;
+			if (verifierCollisionProchainDeplacement(lesX, lesY, plateau, *direction))
+			{
+				// Si collision, essayer l'autre direction verticale
+				*direction = (differenceY > 0) ? HAUT : BAS;
+				if (verifierCollisionProchainDeplacement(lesX, lesY, plateau, *direction))
+				{
+					// Si collision, essayer l'autre direction horizontale
+					*direction = (differenceX > 0) ? GAUCHE : DROITE;
+				}
+			}
+		}
+	}
 }
 
 void progresser2(int lesX[], int lesY[], char direction, tPlateau plateau, bool *collision, bool *pomme, bool *utiliserIssue)
