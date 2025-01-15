@@ -683,28 +683,8 @@ void directionSerpent2(int lesX2[], int lesY2[], tPlateau plateau, char *directi
 	int differenceX = x - lesX2[0]; // Différence en X
 	int differenceY = y - lesY2[0]; // Différence en Y
 
-	// Essayer de se déplacer dans la direction horizontale
-	if (differenceX != 0)
-	{
-		*direction2 = (differenceX > 0) ? DROITE : GAUCHE;
-		if (verifierCollisionProchainDeplacement2(lesX2, lesY2, plateau, *direction2, lesX1, lesY1))
-		{
-			// Si collision, essayer la direction verticale
-			*direction2 = (differenceY > 0) ? BAS : HAUT;
-			if (verifierCollisionProchainDeplacement2(lesX2, lesY2, plateau, *direction2, lesX1, lesY1))
-			{
-				// Si collision, essayer l'autre direction verticale
-				*direction2 = (differenceY > 0) ? HAUT : BAS;
-				if (verifierCollisionProchainDeplacement2(lesX2, lesY2, plateau, *direction2, lesX1, lesY1))
-				{
-					// Si collision, essayer l'autre direction horizontale
-					*direction2 = (differenceX > 0) ? GAUCHE : DROITE;
-				}
-			}
-		}
-	}
 	// Essayer de se déplacer dans la position verticale si horizontale n'est pas possible
-	else if (differenceY != 0)
+	if (differenceY != 0)
 	{
 		*direction2 = (differenceY > 0) ? BAS : HAUT;
 		if (verifierCollisionProchainDeplacement2(lesX2, lesY2, plateau, *direction2, lesX1, lesY1))
@@ -719,6 +699,26 @@ void directionSerpent2(int lesX2[], int lesY2[], tPlateau plateau, char *directi
 				{
 					// Si collision, essayer l'autre direction verticale
 					*direction2 = (differenceY > 0) ? HAUT : BAS;
+				}
+			}
+		}
+	}
+	// Essayer de se déplacer dans la direction horizontale
+	else if (differenceX != 0)
+	{
+		*direction2 = (differenceX > 0) ? DROITE : GAUCHE;
+		if (verifierCollisionProchainDeplacement2(lesX2, lesY2, plateau, *direction2, lesX1, lesY1))
+		{
+			// Si collision, essayer la direction verticale
+			*direction2 = (differenceY > 0) ? BAS : HAUT;
+			if (verifierCollisionProchainDeplacement2(lesX2, lesY2, plateau, *direction2, lesX1, lesY1))
+			{
+				// Si collision, essayer l'autre direction verticale
+				*direction2 = (differenceY > 0) ? HAUT : BAS;
+				if (verifierCollisionProchainDeplacement2(lesX2, lesY2, plateau, *direction2, lesX1, lesY1))
+				{
+					// Si collision, essayer l'autre direction horizontale
+					*direction2 = (differenceX > 0) ? GAUCHE : DROITE;
 				}
 			}
 		}
