@@ -48,8 +48,8 @@
 #define ATTENTE 20000
 // caractères pour représenter les serpents
 #define CORPS 'X'
-#define TETE_SERPENT_1 1
-#define TETE_SERPENT_2 1
+#define TETE_SERPENT_1 '1'
+#define TETE_SERPENT_2 '2'
 // touches de direction ou d'arrêt du jeu
 #define HAUT 1
 #define BAS 2
@@ -240,7 +240,7 @@ int main()
 		{
 			if (utiliserIssue2)
 			{
-				directionSerpent2(lesX2, lesY2, lePlateau, &direction2, lesPommesX[(nbPommes2+nbPommes2)], lesPommesY[(nbPommes1+nbPommes2)], lesX1, lesY1);
+				directionSerpent2(lesX2, lesY2, lePlateau, &direction2, lesPommesX[(nbPommes1+nbPommes2)], lesPommesY[(nbPommes1+nbPommes2)], lesX1, lesY1);
 			}
 			else
 			{
@@ -298,6 +298,7 @@ int main()
 			nbPommes1++;
 			if ((nbPommes1+nbPommes2) == NB_POMMES) {
 				gagne = true;
+				utiliserIssue1 = false;
 			}
 			if (!gagne)
 			{
@@ -305,13 +306,13 @@ int main()
 				// recalcul la meilleure position après l'apparition d'une nouvelle pomme
 				meilleurDistance1 = calculDistance1(lesX1, lesY1, lesPommesX[(nbPommes1+nbPommes2)], lesPommesY[(nbPommes1+nbPommes2)]); 
 				pommeMangee1 = false;
-				utiliserIssue1 = false;
 			}
 		}
 		else if (pommeMangee2){
 			nbPommes2++;
 			if ((nbPommes1+nbPommes2) == NB_POMMES) {
 				gagne = true;
+				utiliserIssue2 = false;
 			}
 			if (!gagne)
 			{
@@ -319,7 +320,6 @@ int main()
 				// recalcul la meilleure position après l'apparition d'une nouvelle pomme
 				meilleurDistance2 = calculDistance2(lesX2, lesY2, lesPommesX[(nbPommes1+nbPommes2)], lesPommesY[(nbPommes1+nbPommes2)]); 
 				pommeMangee2 = false;
-				utiliserIssue2 = false;
 			}
 		}
 
@@ -684,28 +684,8 @@ void directionSerpent2(int lesX2[], int lesY2[], tPlateau plateau, char *directi
 	int differenceX = x - lesX2[0]; // Différence en X
 	int differenceY = y - lesY2[0]; // Différence en Y
 
-	// Essayer de se déplacer dans la direction horizontale
-	if (differenceX != 0)
-	{
-		*direction2 = (differenceX > 0) ? DROITE : GAUCHE;
-		if (verifierCollisionProchainDeplacement2(lesX2, lesY2, plateau, *direction2, lesX1, lesY1))
-		{
-			// Si collision, essayer la direction verticale
-			*direction2 = (differenceY > 0) ? BAS : HAUT;
-			if (verifierCollisionProchainDeplacement2(lesX2, lesY2, plateau, *direction2, lesX1, lesY1))
-			{
-				// Si collision, essayer l'autre direction verticale
-				*direction2 = (differenceY > 0) ? HAUT : BAS;
-				if (verifierCollisionProchainDeplacement2(lesX2, lesY2, plateau, *direction2, lesX1, lesY1))
-				{
-					// Si collision, essayer l'autre direction horizontale
-					*direction2 = (differenceX > 0) ? GAUCHE : DROITE;
-				}
-			}
-		}
-	}
 	// Essayer de se déplacer dans la position verticale si horizontale n'est pas possible
-	else if (differenceY != 0)
+	if (differenceY != 0)
 	{
 		*direction2 = (differenceY > 0) ? BAS : HAUT;
 		if (verifierCollisionProchainDeplacement2(lesX2, lesY2, plateau, *direction2, lesX1, lesY1))
@@ -724,6 +704,26 @@ void directionSerpent2(int lesX2[], int lesY2[], tPlateau plateau, char *directi
 			}
 		}
 	}
+	// Essayer de se déplacer dans la direction horizontale
+	else if (differenceX != 0)
+	{
+		*direction2 = (differenceX > 0) ? DROITE : GAUCHE;
+		if (verifierCollisionProchainDeplacement2(lesX2, lesY2, plateau, *direction2, lesX1, lesY1))
+		{
+			// Si collision, essayer la direction verticale
+			*direction2 = (differenceY > 0) ? BAS : HAUT;
+			if (verifierCollisionProchainDeplacement2(lesX2, lesY2, plateau, *direction2, lesX1, lesY1))
+			{
+				// Si collision, essayer l'autre direction verticale
+				*direction2 = (differenceY > 0) ? HAUT : BAS;
+				if (verifierCollisionProchainDeplacement2(lesX2, lesY2, plateau, *direction2, lesX1, lesY1))
+				{
+					// Si collision, essayer l'autre direction horizontale
+					*direction2 = (differenceX > 0) ? GAUCHE : DROITE;
+				}
+			}
+		}
+	}
 }
 
 int calculDistance2(int lesX2[], int lesY2[], int pommeX, int pommeY)
@@ -734,21 +734,17 @@ int calculDistance2(int lesX2[], int lesY2[], int pommeX, int pommeY)
 	// calcul la distance pour chaque chemin du serpent vers la pomme
 	passageTrouGauche = abs(lesX2[0] - ISSUE_GAUCHE_X) + abs(lesY2[0] - ISSUE_GAUCHE_Y) + 
 		abs(pommeX - ISSUE_DROITE_X) + abs(pommeY - ISSUE_DROITE_Y);
-
 	passageTrouDroit = abs(lesX2[0] - ISSUE_DROITE_X) + abs(lesY2[0] - ISSUE_DROITE_Y) + 
 		abs(pommeX - ISSUE_GAUCHE_X) + abs(pommeY - ISSUE_GAUCHE_Y);
-
 	passageTrouHaut = abs(lesX2[0] - ISSUE_HAUT_X) + abs(lesY2[0] - ISSUE_HAUT_Y) + 
 		abs(pommeX - ISSUE_BAS_X) + abs(pommeY - ISSUE_BAS_Y);
-
 	passageTrouBas = abs(lesX2[0] - ISSUE_BAS_X) + abs(lesY2[0] - ISSUE_BAS_Y) + 
 		abs(pommeX - ISSUE_HAUT_X) + abs(pommeY - ISSUE_HAUT_Y);
-
 	passageDirect = abs(lesX2[0] - pommeX) + abs(lesY2[0] - pommeY);
 
 	// compare les résultats pour obtenir le meilleur chemin
 	// chemin direct vers la pomme sans passer dans un trou
-if ( (passageDirect <= passageTrouHaut) && (passageDirect <= passageTrouBas) &&
+	if ( (passageDirect <= passageTrouHaut) && (passageDirect <= passageTrouBas) &&
 		(passageDirect <= passageTrouGauche) && (passageDirect <= passageTrouDroit) )
 	{
 		return CHEMIN_POMME;
