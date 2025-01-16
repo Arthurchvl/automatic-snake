@@ -43,7 +43,7 @@
 #define NB_PAVES 6
 #define TAILLE_PAVES 5
 // temporisation entre deux déplacements du serpent, 200 000 microseconces
-#define TEMPORISATION 200000
+#define TEMPORISATION 20000
 // caractères pour représenter le serpent
 #define CORPS 'X'
 #define TETE 'O'
@@ -215,7 +215,6 @@ int main()
 			nbPommes++;
 			if (nbPommes == NB_POMMES) {
 				gagne = true;
-				utiliserIssue = false;
 			}
 			if (!gagne)
 			{
@@ -223,6 +222,7 @@ int main()
 				// recalcul la meilleure position après l'apparition d'une nouvelle pomme
 				meilleurDistance = calculDistance(lesX, lesY, lesPommesX[nbPommes], lesPommesY[nbPommes]); 
 				pommeMangee = false;
+				utiliserIssue = false;
 			}
 		}
 		if (!gagne)
