@@ -59,21 +59,21 @@
 #define VIDE ' '
 #define POMME '6'
 // coordonnées X et Y des issues
-#define ISSUE_HAUT_X 40
-#define ISSUE_HAUT_Y 0
-#define ISSUE_BAS_X 40
-#define ISSUE_BAS_Y 40
-#define ISSUE_GAUCHE_X 0
-#define ISSUE_GAUCHE_Y 20
-#define ISSUE_DROITE_X 80
-#define ISSUE_DROITE_Y 20
+#define ISSUE_HAUT_X 40 // 80/2 colonne du milieu
+#define ISSUE_HAUT_Y 0 // 1ère ligne 
+#define ISSUE_BAS_X 40 // 80/2 colonne du milieu
+#define ISSUE_BAS_Y 40 // derinère ligne 
+#define ISSUE_GAUCHE_X 0 // 1ère colonne
+#define ISSUE_GAUCHE_Y 20 // 40/2 ligne du milieu
+#define ISSUE_DROITE_X 80 // dernière colonne
+#define ISSUE_DROITE_Y 20 // 40/2 ligne du milieu
 
 // définition des positions X et Y des pommes dans un tableau
 // et des positions des coins supérieurs gauches des pavés dans un tableau
-int lesPommesX[NB_POMMES] = {75, 75, 78, 2, 8, 78, 74, 2, 72, 5};
-int lesPommesY[NB_POMMES] = { 8, 39, 2, 2, 5, 39, 33, 38, 35, 2};
-int lesPavesX[NB_PAVES] = { 3, 74, 3, 74, 38, 38};
-int lesPavesY[NB_PAVES] = {3, 3, 34, 34, 21, 15 };
+int lesPommesX[NB_POMMES] = {75, 75, 78, 2, 8, 78, 74, 2, 72, 5}; // positions X des pommes
+int lesPommesY[NB_POMMES] = { 8, 39, 2, 2, 5, 39, 33, 38, 35, 2}; // positions Y des pommes
+int lesPavesX[NB_PAVES] = { 3, 74, 3, 74, 38, 38}; // position X du coin supérieur gauche du pavé 
+int lesPavesY[NB_PAVES] = {3, 3, 34, 34, 21, 15 }; // position Y du coin supérieur droit du pavé
 
 // définition d'un type pour le plateau
 // Attention, pour que les indices du tableau 2D (qui commencent à 0) coincident
@@ -82,7 +82,7 @@ int lesPavesY[NB_PAVES] = {3, 3, 34, 34, 21, 15 };
 // utilisées)
 typedef char tPlateau[LARGEUR_PLATEAU + 1][HAUTEUR_PLATEAU + 1];
 
-int nbPommes = 0;
+int nbPommes = 0; // compteur de pommes mangées
 
 /* Déclaration des fonctions et procédures*/
 void initPlateau(tPlateau plateau, int lesX[], int lesY[]);
@@ -123,6 +123,10 @@ int main()
 	// le plateau de jeu
 	tPlateau lePlateau;
 
+	// boolléens vérifiant qu'il n'y ai pas de collisions,
+	// le jeu ne s'arrête pas,
+	// aucune pomme n'est mangée
+	// et les issues n'ont pas à être untilisées
 	bool collision = false;
 	bool gagne = false;
 	bool pommeMangee = false;
@@ -317,7 +321,7 @@ void dessinerPlateau(tPlateau plateau)
 
 void ajouterPomme(tPlateau plateau, int iPomme)
 {
-	// génère aléatoirement la position d'une pomme,
+	// génère la position de la pomme suivante en fonction du nombre de pommes mangées,
 	// vérifie que ça correspond à une case vide
 	// du plateau puis l'ajoute au plateau et l'affiche
 	int xPomme, yPomme;
@@ -325,7 +329,7 @@ void ajouterPomme(tPlateau plateau, int iPomme)
 	{
 		xPomme = lesPommesX[iPomme];
 		yPomme = lesPommesY[iPomme];
-	} while (plateau[xPomme][yPomme] != ' ');
+	} while (plateau[xPomme][yPomme] != VIDE);
 	plateau[xPomme][yPomme] = POMME;
 	afficher(xPomme, yPomme, POMME);
 }
@@ -340,7 +344,7 @@ void afficher(int x, int y, char car)
 void effacer(int x, int y)
 {
 	gotoxy(x, y);
-	printf(" ");
+	printf("%c", VIDE);
 	gotoxy(1, 1);
 }
 
