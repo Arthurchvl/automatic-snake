@@ -43,7 +43,7 @@
 #define NB_PAVES 6
 #define TAILLE_PAVES 5
 // temporisation entre deux déplacements du serpent, 200 000 microseconces
-#define TEMPORISATION 20000
+#define TEMPORISATION 200000
 // caractères pour représenter le serpent
 #define CORPS 'X'
 #define TETE 'O'
