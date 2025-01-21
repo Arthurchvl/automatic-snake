@@ -37,8 +37,8 @@
 #define HAUTEUR_PLATEAU 40
 // position initiale de la tête des serpent
 #define X_INITIAL 40
-#define Y_INITIAL_SERPENT_1 13
-#define Y_INITIAL_SERPENT_2 27
+#define Y_INITIAL_SERPENT_1 14
+#define Y_INITIAL_SERPENT_2 26
 // nombre de pommes à manger pour gagner
 #define NB_POMMES 10
 // caractéristiques constantes des pavés (nombre et taille)
@@ -73,11 +73,10 @@
 
 // définition des positions X et Y des pommes dans un tableau
 // et des positions des coins supérieurs gauches des pavés dans un tableau
-int lesPommesX[NB_POMMES] = {40, 75, 78, 2, 9, 78, 74, 2, 72, 5};
-int lesPommesY[NB_POMMES] = {20, 38, 2, 2, 5, 38, 32, 38, 32, 2};
-int lesPavesX[NB_PAVES] = { 4, 73, 4, 73, 38, 38};
-int lesPavesY[NB_PAVES] = { 4, 4, 33, 33, 14, 22};
-
+int lesPommesX[NB_POMMES] = {75, 75, 78, 2, 8, 78, 74, 2, 72, 5};
+int lesPommesY[NB_POMMES] = { 8, 39, 2, 2, 5, 39, 33, 38, 35, 2};
+int lesPavesX[NB_PAVES] = { 3, 74, 3, 74, 38, 38};
+int lesPavesY[NB_PAVES] = { 3, 3, 34, 34, 21, 15 };
 
 // définition d'un type pour le plateau
 // Attention, pour que les indices du tableau 2D (qui commencent à 0) coincident
