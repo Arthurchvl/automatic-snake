@@ -484,7 +484,7 @@ void directionSerpent1(int lesX1[], int lesY1[], tPlateau plateau, char *directi
 		}
 	}
 	
-	// Si pas de déplacement horizontal possible, essayer horizontale
+	// Si pas de déplacement horizontal possible, essayer vertical
 	else if (differenceX != 0)
 	{
 		*direction1 = (differenceX > 0) ? DROITE : GAUCHE;
@@ -573,22 +573,21 @@ bool verifierCollisionProchainDeplacement1(int lesX1[], int lesY1[], tPlateau pl
 		break;
 	}
 
-	// Vérification des collisions avec les bords du tableau
+	for(int i = 0; i < TAILLE; i++) {
+        if(nouvelleX == lesX2[i] && nouvelleY == lesY2[i]) {
+            return true;
+        }
+    }
 	if (plateau[nouvelleX][nouvelleY] == BORDURE)
 	{
 		return true; // Collision avec une bordure
 	}
-
-	// Vérification des collisions avec le corps du serpent
-	for (int i = 0 ; i < TAILLE ; i++)
-	{
-		if ( ((lesX1[i] == nouvelleX) && (lesY1[i] == nouvelleY)) || ((lesX2[i] == nouvelleX) && (lesY2[i] == nouvelleY)) )
-		{
-			return true; // Collision avec le corps du serpent ou le serpent 2
-		}
+	else if (plateau[nouvelleX][nouvelleY] == CORPS){
+		return true;
 	}
-
-	return false; // Pas de collision
+	else {
+		return false;
+	}
 }
 
 void progresser1(int lesX1[], int lesY1[], char direction1, tPlateau plateau, bool *collision1, bool *pommeMangee1, bool *utiliserIssue1)
@@ -656,10 +655,6 @@ void progresser1(int lesX1[], int lesY1[], char direction1, tPlateau plateau, bo
 	// détection d'une collision avec la bordure
 	else if (plateau[lesX1[0]][lesY1[0]] == BORDURE)
 	{
-		*collision1 = true;
-	}
-	// détection d'une collision avec son corps ou le serpent 1
-	else if ((plateau[lesX1[0]][lesY1[0]] == TETE_SERPENT_2) || (plateau[lesX1[0]][lesY1[0]] == CORPS)){
 		*collision1 = true;
 	}
 	dessinerSerpent1(lesX1, lesY1);
@@ -794,22 +789,22 @@ bool verifierCollisionProchainDeplacement2(int lesX2[], int lesY2[], tPlateau pl
 		break;
 	}
 
-	// Vérification des collisions avec les bords du tableau
+	// Vérification des collisions 
+	for(int i = 0; i < TAILLE; i++) {
+        if(nouvelleX == lesX1[i] && nouvelleY == lesY1[i]) {
+            return true;
+        }
+    }
 	if (plateau[nouvelleX][nouvelleY] == BORDURE)
 	{
 		return true; // Collision avec une bordure
 	}
-
-	// Vérification des collisions avec le corps du serpent
-	for (int i = 0 ; i < TAILLE ; i++)
-	{
-		if ( ((lesX2[i] == nouvelleX) && (lesY2[i] == nouvelleY)) || ((lesX1[i] == nouvelleX) && (lesY1[i] == nouvelleY)) )
-		{
-			return true; // Collision avec le corps du serpent ou du serpent 1
-		}
+	else if (plateau[nouvelleX][nouvelleY] == CORPS){
+		return true;
 	}
-
-	return false; // Pas de collision
+	else {
+		return false;
+	}
 }
 
 void progresser2(int lesX2[], int lesY2[], char direction2, tPlateau plateau, bool *collision2, bool *pommeMangee2, bool *utiliserIssue2)
@@ -877,10 +872,6 @@ void progresser2(int lesX2[], int lesY2[], char direction2, tPlateau plateau, bo
 	// détection d'une collision avec la bordure
 	else if (plateau[lesX2[0]][lesY2[0]] == BORDURE)
 	{
-		*collision2 = true;
-	}
-	// detection d'une collision avec son corps ou le serpent 1
-	else if ((plateau[lesX2[0]][lesY2[0]] == TETE_SERPENT_1) || (plateau[lesX2[0]][lesY2[0]] == CORPS)){
 		*collision2 = true;
 	}
 	dessinerSerpent2(lesX2, lesY2);
