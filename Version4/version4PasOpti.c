@@ -45,7 +45,7 @@
 #define NB_PAVES 6
 #define TAILLE_PAVES 5
 // temporisation entre deux déplacements des serpents, 200 000 microseconces
-#define ATTENTE 20000
+#define ATTENTE 200000
 // caractères pour représenter les serpents
 #define CORPS 'X'
 #define TETE_SERPENT_1 '1'
@@ -288,7 +288,7 @@ int main()
 
 		// deplacement du serpent à chaque fois et incrémentation du compteur de déplacements
 		progresser1(lesX1, lesY1, direction1, lePlateau, &collision1, &pommeMangee1, &utiliserIssue1);
-        deplacements1++; /* ajout d'un déplacement pour le serpent 1*/
+		deplacements1++; /* ajout d'un déplacement pour le serpent 1*/
 		progresser2(lesX2, lesY2, direction2, lePlateau, &collision2, &pommeMangee2, &utiliserIssue2);
 		deplacements2++; /* ajout d'un déplacement pour le serpent 2*/
 
